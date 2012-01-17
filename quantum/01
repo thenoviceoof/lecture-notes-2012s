@@ -1,0 +1,106 @@
+Quantum Computing
+Wxxxx
+================================================================================
+
+QUANTUM FUCK YEAHHHHHHHHHHHHHHHHHHHH
+
+books
+ - Quantum Computation and Information (by Nielsen/Chuang)
+   - whatever edition
+ - Intro to Quantum Computing (by Kaye, Laflamme, Mosca)
+   - recommended, might be helpful (don't need it)
+
+Notes - take them!
+read some papers (on courseworks)
+
+grading
+ - 5 hw, theory + programming
+   - any language, as long as runs on UNIX
+   - recommends matlab
+   - open source: scilab
+   - total 30% of grade
+ - midterm - 30% grade
+   - march 8th? (before break)
+ - final - 40%
+ - possibly some quizzes: before midterm and final?
+
+talking about terminology/notations (possibly bra-ket?)
+ - oh noes so hard
+
+--------------------------------------------------------------------------------
+Why quantum computing?
+ - [1] Moore's law
+   - 18 months, 2x density of transistors (?)
+   - oh noes size - single atom transistors?
+   - quantum effects dominate
+   - btw Moore was founder of Intel
+ - [2] algo
+   - factoring/search (Shor, Grover) a lot faster
+   - factoring
+     - \exists m: N|m = 0, prime(m)
+     - do it in (n = lg(N), O(n)) time
+     - best classical: O(2**(c lg(N)**(1/3) (lg(lg(N)))**(2/3))) , c>0
+       - Number Field Sieve
+     - Shor (1984):
+       - O(lg(N)**3) (probabilistic algo) (small)
+       - O(lg(N)**4) (prob > 0.5)
+     - HOLY FUCK
+     - so far only really pushed forward in crypto?
+     - Note: classical complexity of factoring is not known
+       - complexity: property of problem (cost/effort needed)
+       - don't know the best for factoring
+   - search
+     - list of N items, unordered
+     - count queries into the collection
+     - O(N) queries
+       - classical lowerbound \Omega(N) (always has to take N)
+       - remember, asymptotic mult by constant
+     - Grover (1996)
+       - O(\sqrt(N)) queries
+   - make everything faster
+ - [3] Crypto
+   - classical methods
+     - symmetric key methods
+     - public/private key methods
+       - depends on hardness of factoring
+   - quantum
+     - key distribution is no problem
+     - eavesdroppers can be observed
+       - observation changes the state
+ - [4] Study quantum mechanics as a model of computation
+   - Church/Turing Thesis (strong)
+     - any algo proc can be simulated efficiently on a Turing Machine
+     - efficient: polynomial factor slowdown
+   - 1970 Solovay + Strassen: randomized algo for primality testing
+     - had to modify the C/T thesis (ad hoc):
+     - any algo proc can be simulated efficiently on a probabilistic TM
+   - Deutsch (1985)
+     - stronger version of C/T? (incld Q/M)
+     - defined model of quantum computation
+       - derived Universal Quantum Computer
+     - find if Q/M computers do more than TM?
+       - read the paper in the class files
+ - [5] Study of entanglement
+   - a unique computation resource
+   - talk more about this later
+
+--------------------------------------------------------------------------------
+Intro to quantum computation
+ - n particle system (ex. molecule)
+   - huge info capacity N = 2^n
+   - can't access it, though
+   - measurements to extract it, but only get n pieces out (lg(n) bits)
+ - state of quantum system
+   - X = [x_i]^t (x_i \in \C, X \in \C^N)
+   - ||X|| = 1 (unit vector)
+   - ||X||^2 = Z\conjugate{Z}
+ - how to transform the quantum system
+   - transform x using unitary ops only (restricted)
+   - x = Ux, U unitary (U^H U = I, U^H is conjugate transpose)
+     - U^H -> transpose, conjugate
+   - y = \prod U_i x_0 (init state)
+     - both y, x_0 are \C^N, U_i are NxN unitary ops
+ - important quantities (in implementation)
+   - n = lg(N) - size of quantum register (# qubits)
+   - # elementary quantum gates needed to implement all U_i
+   - T - time
