@@ -1,0 +1,75 @@
+Networking
+W4115(?)
+================================================================================
+
+Oh god this is a full class
+
+Welcome to class
+
+is prof a grad student? (french grad student?)
+ - nope, maybe a post-doc? or a prof
+
+--------------------------------------------------------------------------------
+
+la la la what is networking, protocols, performance
+ - new protocols
+   ex. p2p protocols
+   implicit promise of doing that, except I smell that we'll be re-implementing
+   usual protocols stacks
+
+appeals
+ - historical knowledge (ex. ARPAnet in 1969)
+ - underlying knowledge
+ - required (ha)
+
+la la la, taking about who should/not take the class
+
+hm, never thought about office hours after the class: for people that
+live far away
+
+uses a wiki
+
+oh wow Apple Policy - get an apple :P
+
+talks a little about himself: not too shabby
+
+parts
+ - internet
+ - application
+ - transport layer
+ - network layer
+ - link layer
+
+================================================================================
+ch 1 - talking about the internet
+
+oh god is he just going to follow the book?
+ - or at least the book's slides, skipping pretty profusely
+
+hosts, links, routers
+
+oh god no anti-aliasing
+
+dial up
+
+DSL
+ - like dial up, except upstream/downstream/voice seperated in freq space
+   - also why upstream != downstream: upstream is on lower freq
+ - cable, same idea, except the cable is shared very much so
+   (due to the arch of cable, broadcast)
+
+fiber yay
+
+----------------------------------------
+
+circuit (end-to-end) vs. packet switching
+
+circuit
+ - talk about time/freq division multiplexing
+
+packet
+ - statistical multiplexing
+ - more links mean more time delay, b/c need to read the header
+   (get packet entire)
+
+and almost done
