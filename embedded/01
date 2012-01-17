@@ -1,0 +1,57 @@
+Embedded Systems
+W4840(?)
+================================================================================
+
+cars are computers with strange peripherals
+
+talking about desiderata of embedded systems
+ - price
+ - performance
+ - power
+ - etc
+
+talking about moore's law
+
+referrenced kurzweil
+
+interesting: trying to get us to think in a 'just work' mentality
+ - guess it makes sense, it is an embedded course
+
+EWOG?
+
+goal of good engineering - can hide stuff
+
+oh god debugging/detailed design major time sinks
+
+if you can't see the cat, the sucker's dead
+
+yay FPGAs
+
+Apple ][ on the dev board
+
+class
+ - take board
+ - do something with it
+ - more detail:
+   - 3 intro labs (learn dev software)
+     - intro VHDL
+     - ethernet
+     - FM audio or video bouncing ball
+   - project: design your own
+     - 4 each
+     - C + VHDL + peripherals
+     - don't worry too much about being original
+
+please drop the course! :P
+
+main challenges
+ - real sensor data
+   - correcting CCD data
+     - correct for supurious pixels, periodic, bias
+     - convert to color, correct color temp/exposure
+ - algo design
+   - get some data
+   - prototype the algo
+   - figure out how to implement
+   - implement with fuckton of testing
+ - implementation details
