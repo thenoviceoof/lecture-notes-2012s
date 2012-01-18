@@ -1,0 +1,144 @@
+PLT
+2012/01/18
+Lecture 01
+================================================================================
+
+Aho needs a microphone
+
+Damn, he's not telling us to make a toy language nooooooooooooooooo
+
+Outline - went through it yesterday
+
+150 students holy shit
+
+Midterm - March 28
+Final - April 30th
+Demos - May 7-9
+
+Programming language design la la la
+ ? computational thinking? in lang design?
+
+LOC for all comp sys?
+ - tried going forward: estimate large projects (1,000-10,000)
+   and LOC 10,000,000
+   - 10bil-100bil LOC
+   - missing long tail?
+ - hm, he went backwards: 5mil programmers, 2500 LOC each year
+   - 0.5tril LOC
+ - talking about language aging
+
+software hall of shame, ha
+
+will talk about how to write reliable software?
+
+--------------------------------------------------------------------------------
+
+list of topics
+ - Computational thinking
+ - Kinds of programming languages
+ - Principles of compilers
+ - Lexical analysis
+ - Syntax analysis
+ - Tools for constructing compilers
+ - Syntax-directed translation
+ - Semantic analysis
+ - Run-time organization
+ - Intermediate code generation
+ - Code generation
+ - Code optimization
+ - Parallel and concurrent programming languages
+
+computational thinking -> formulate problems as computational steps/algos
+
+right, right, he wrote the dragon book. welp
+
+10% - homework
+25% - midterm
+25% - final
+40% - project (group/individual)
+
+All assignments can be handed in one week after they are due for 50% credit.
+
+--------------------------------------------------------------------------------
+
+welp, gonna have to brush up on my makefile-fu
+
+best theory motivated by practice, best practice motivated by theory
+ - knuth
+
+okay, he's talking about graphics and midi, no wonder people steer
+towards those sorts of these things in the projects
+
+talking about past projects
+
+--------------------------------------------------------------------------------
+feb 22  lang whitepaper
+mar 21  lang tutorial/ref
+may 7-9 demo
+
+ha, and there's the drop of AWK
+
+also ref K&R for lang tutorial
+
+Project manager
+ - complete all the deliverables
+Language guru
+ - lang integrity/tools
+System architect
+ - compiler arch
+System integrator
+ - execution environment
+ - recommend makefiles right away
+Verification and validation person
+ - test plans/suites
+ - story about adding regression test suite to awk
+
+it seems like there's going to be a crap ton of overlap, difficult to
+keep these completely seperate
+
+each member: at least 500 LOC
+
+use the grouchy old professor as a bludgeon
+
+--------------------------------------------------------------------------------
+
+A programming language is a notation for specifying computational
+tasks that a person can understand and a computer can execute.
+
+preface to awk's regexp module: "abandon hope, all ye who enter here"
+
+i = 1;
+j = i++ + ++i;
+
+output 4 or 3?
+
+lang spec: undefined? unspecified?
+ - says it should have at most 1 op with side effects on each variable
+ - undefined behavior
+   - similar undefined:
+     i = ++i + 1;
+     a[i++] = i;
+
+LIST BELOW IN lecture notes
+
+imperative/declarative distinction
+
+von Neumann language
+ - comp model based on von Neumann arch
+ - basic comp is mod of vars (side effects)
+
+oop/scripting/functional distinction
+
+parallel
+
+domain-specific
+
+markup
+
+la la la
+
+--------------------------------------------------------------------------------
+
+teehee whitespace language
+
+GET A GODDAMN TEAM
