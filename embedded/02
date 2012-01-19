@@ -1,0 +1,50 @@
+Embedded Systems
+Lectures #2
+2012/01/19
+================================================================================
+Note: no lectures next week
+
+Talking about VHDL
+ - history
+   - used to be a bunch of guys drawing transistors and wires
+   - 1970: mention SPICE, transistor-level netlists (analog logic)
+     - oh god punch cards (SPICE deck)
+   - 1980: graphical schematic capture programs
+   - 1990: HDLs, logic synthesis
+     - generate the schematics, etc
+ - talking about verilog/VHDL battle
+   - semantically identical, synth parts using either
+   - talking about syntax of VHDL
+
+Talking about modeling styles of VHDL (review)
+ - remember: true/false are characters (enumerated)
+ - talking about std_logic_1164
+ - module
+   - process blocks
+   - dataflow expressions
+   - components
+ - entity/architecture pairs
+   - no one ever uses more than one arch for one entity
+ - altera/xilinx
+   - both are great, using altera
+ - bit collections
+   - std_logic_vector (ieee_std_1164)
+   - unsigned/signed (numeric_std) [use ieee.numeric_std.all;]
+ - use little endian for vectors (by decree of edwards)
+   - [unsigned(i downto 0)]
+ - question about indexing into vector (dynamic?)
+   - multiplexer?
+   - or maybe just a wire?
+   - point: know how your code translates to hardware
+ - negative numbers: two's complement
+
+kind of fell asleep for a bit
+
+ - case statement from with/when, do use a decoder or ROM
+   - can figure out the k-map
+ - going to end up trying to get these things correct, not efficient
+ - talking about with/select
+ - & -> vector concatenation
+ - don't try to just pick up VHDL code and modify it for your own use
+   - it will be very difficult
+   - easier to just re-implement
