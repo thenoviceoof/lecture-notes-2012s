@@ -1,0 +1,102 @@
+Quantum Computing
+lecture #2
+2012/01/19
+================================================================================
+Review:
+ - reasons for QC
+ - informal look at QC
+
+remember:
+ - U_i are unitary operators (matricies)
+ - x_0 and y are vectors
+ - unitary is NxN matrix where U^H U = I, ^H conjugate transpose
+y = \prod U_i x_0 (init state)
+
+Examples of unitary matricies:
+ - I
+ - [[ct -st]
+    [st  ct]]
+ - [[e^(i\phi_1) 0       ]
+    [0        e^(i\phi_2)]]
+
+U^-1 = U^H, reversible computation
+
+important quantities
+ - # qubits (len/size of quantum register), lg(N) = n
+ - # elementary quantum gates to implement \forall i:U_i
+ - size T (time)
+
+--------------------------------------------------------------------------------
+New material:
+Qubit
+ - classical info unit, bit - 0/1
+ - quantum -> qubit, states 0,1, superposition
+   - states -> |0>, |1>, |0> and |1> superimposed
+ - fucking superposition, how does it work?
+   - electron orbits a nucleus
+   - groud state |0>, or excited state |1>
+   - put photons into it to change states
+   - cycle intensity to get into an intermediate state
+   - note to self: how the fuck does that do the quantum stuff?
+ - other ways to make qubits
+   - different polarizations of a photon
+     - alignment of spins in a uniform mag field -> states
+   - etc
+ - Formal definition
+   - qubit is element of 2d hilbert space (OH FUCK) \fancy{H}
+     - hilbert space: euclidean distance holds \sqrt{x^2 + y^2}
+   - \fancy{H} = C^2
+   - \vector{v} = [a b]^t \in H
+   - omg 2d, 2 basis vectos e_0 = [1 0]^t, e_1 = [0 1]^t
+   - introduction of bra-ket notation (in passing)
+     - |0>, |1> instead of e_0 e_1
+   - || |0> ||^2 = [1 0][1 0]^t = 1
+   - <1|0> = 0, |0> \ortho |1>
+   - la la la { |0>, |1> } orthonormal basis
+ - Dirac notation (bra-ket)
+   - ket
+     - |x> = [x_i]^t \in C^N
+     - column vector
+   - bra
+     - <x| = [\conjugate{x_i}] = x^H
+     - row vector
+   - AMAZING IT SPELLS <|> BRAKET
+     - ITS ALSO A DOT PRODUCT
+   - <y|x> = \conjugate{<x|y>}
+   - || |0> ||^2 = <0|0> = 1
+ - back to the qubit
+   - repr
+     - |y> = a|0> + b|1>, |a|^2 + |b|^2 = 1, a,b\in C
+     - || |y> ||^2 = <y|y> = |a|^2 + |b|^2 = 1
+     - <y|y> => <y| \cdot |y>
+       = (\bar{a}<0| + \bar{b}<1|)(a|0> + b|1>)
+       = \bar{a}a <0|0> + \bar{a}b<0|1> + a\bar{b}<1|0> + \bar{b}b<1|1>
+       = \bar{a}a + \bar{b}b = etc... = 1
+   - bloch sphere reperesentation of a qubit
+     - |y> = a|0> + b|1>, |a|^2 + |b|^2 = 1, a,b\in C
+     - a = |a|e^(i\phi_a) [we can write this in a spherical manner]
+     - |y> = e^(i\phi_a)(|a| |0> + |b| e^(i(\phi_b-\phi_a)) |1>)
+     - set |a| = cos(\theta/2), |b| = sin(\theta/2)
+       - using /2 b/c we're putting it into a sphere
+     - set \phi = \phi_b-\phi_a
+     - |y> = e^(i\phi_a)(cos(\theta/2)|0>+sin(\theta/2)e^(i\phi)|1>)
+     - e^(i\phi_a) is a global phase: no measureable effect, IGNORE
+       - only care about phase differences: e^(i\phi)
+     - on the axis: |0> up, |1> down (because \theta/2)
+Page 1, FIGURE 1: illustration of sphere
+     - \theta is inclination
+     - \phi is azimuth
+     - bloch sphere is not in the book
+       - physicists - ops as rotations on spheres
+ - Measurement
+   - |y> = a|0> + b|1>
+   - measurement gives 0 w/ prob |a|^2 (collapse interpretation, |0>)
+   - measurement gives 1 w/ prob |b|^2 (collapse interpretation, |1>)
+   - measurement => projection + renormalization
+     - use projection op/matrix
+     - M_0 = |0><0|
+     - M_1 = |1><1|
+     - M_0 |y> = |0><0|(a|0> + b|1>) = a|0><0|0> + b|0><0|1> = a|0>
+       HOLY FUCK
+     - also renormalization
+       - a|0> / (|| a|0> ||) = a/|a| |0> -> global phase, just |0>
