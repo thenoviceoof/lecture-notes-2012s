@@ -1,0 +1,124 @@
+PLT
+2012/01/23
+#02
+================================================================================
+
+Talking about random things?
+
+Talking about course project
+
+oh god talking about mapping between natural and programming languages
+
+brainstorming session with aho yayyyyyyyy
+
+talking about roles again, pretty verbose? (violate DRY?)
+
+--------------------------------------------------------------------------------
+Language specification
+ - the representation of programs
+   - alphabet for src
+   - i/o data
+   - la la la
+ - the syntax and constraints of the language
+   - lexical struct
+   - regular struct
+ - the semantic rules for interpreting programs
+   - talk about axioms, denotational, kind of missed this part
+ - the representation of input data to be processed by programs
+ - the representation of output data produced by programs
+ - other restrictions on programs (such as what makes a program
+   portable across different implementations and platforms)
+   - portability
+     - implementation specific
+     - undefined/unspecified behaviors
+     - hardware is faster than software WHAAAAAAAAAAAAAAA
+
+Talking about C
+ - history
+   - came out of BCPL -> C
+   - 1972 K+R C
+   - C89, ANSI C
+   - C90, ISO C
+   - C99
+   - C11 (by ISO)
+
+--------------------------------------------------------------------------------
+Fundamental Elements of Programming Languages
+ - programming model?
+   - C: imperative, procedural
+ - program structure
+   - C: seq of translation units stored in files
+ - character set
+   - C: subset of 7-bit ASCII
+   - src/target char sets can be different
+   - admonition: keep it simple
+ - lexical conventions
+   - write out sample C program:
+----------------------------------------
+/* this program computes the greatest common divisor
+   of two integers entered on the command line */
+
+#include <stdio.h>
+#include <stdlib.h>
+
+int gcd(int m, int n)
+{
+  int r;
+  while ((r = m % n) != 0) {
+    m = n;
+    n = r;
+  }
+  return n;
+}
+
+int main(int argc, char *argv[])
+{
+  int m, n;
+  m = atoi(argv[1]);
+  n = atoi(argv[2]);
+  printf("gcd of %d and %d is %d\n", m, n, gcd(m, n)); 
+  return 0;
+}
+----------------------------------------
+   - tokenize, i by itself isn't interesting, int is
+   - C: token types:
+     - identifier
+       - ([a-zA-Z_])+([a-zA-Z0-9_])*
+     - keywords
+     - string literals
+     - operators
+     - seperator
+ta ha, lame joke (double negative, yeah right story)
+
+huh, interesting diversion into writing style
+  suggest strunk and white (small-college professor vs small college professor)
+ - suggest style guide
+   - ex. google C++ style guide
+   - THOSE FUCKERS
+ - talking about dynamic vs. static/lexical scope
+   - talk about closures later yay
+ - scope/binding
+   - lifetime of variables/scope/binding
+
+oh god I am sleepy
+
+Data type
+ - set of data values, ops allowed on values
+ - basic/derived types
+   - CHARIZARD
+ - control flow, functions, data abstraction, concurrency, exception handling
+   event handling, comments
+
+idea: when you have two places in anic unlatches, then it gets copied
+to both places. This is actually a bad idea, because it means you
+can't execute lines in any order
+
+talking about difference between compiler/interpreter
+ - feed source + input to interpreter
+ - talk about JVM
+ - C compilation process
+   preprocessor, compiler, assembler, linker/loader
+
+idea: p2p version control? (ha ha, just distributed)
+
+oh god I am tired
