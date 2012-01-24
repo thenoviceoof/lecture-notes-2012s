@@ -1,0 +1,149 @@
+Quantum Computing
+lecture #3
+2012/01/24
+================================================================================
+1st homework out
+
+missed a bit of this class
+
+--------------------------------------------------------------------------------
+
+Review
+ - qubit
+   - C^2 \in H
+   - y \in H, y = a|0> + b|1> = [a b]^t, |a|^2 + |b|^2 = 1 where a, b\in C
+ - bloch sphere
+   - y = [cos(\theta/2)|0> + e^(i\phi) sin(\theta/2)|1>)
+   - for some reason, closed [ with )
+   - \phi \in [0, 2\pi), \theta \in [0, \pi)
+   - draw on sphere:
+PAGE 1, LECTURE 2, FIGURE 1
+
+
+Measurement
+ - formally: projection + renormalization
+ - Measure |y>:
+   outcome  prob   collapses to
+   0        |a|^2  |0>
+   1        |b|^2  |1>
+ - note: not recoverable after measurement
+
+
+examples of qubits
+|+> = 1/\sqrt(2)(|0> + |1>) = cos(90/2)|0> + e^(i 0)sin(90/2)|1>
+    \theta = 90\deg, \phi = 0\deg
+    on a bloch sphere:
+PAGE 1, LECTURE 3, FIGURE 1: drawing of vector |+> on sphere
+|-> = 1/\sqrt(2)(|0> - |1>) = cos(90/2)|0> + e^(i 180)sin(90/2)|1>
+    \theta = 90\deg, \phi = 180\deg
+    on a bloch sphere:
+PAGE 1, LECTURE 3, FIGURE 2: drawing of vector |-> on sphere
+|+> and |-> are ortho
+ - DOES NOT APPEAR SO ON A BLOCH SPHERE, BUT THEY ARE ORTHO
+ - <+|-> = 0
+ - question about why they look parallel on a bloch sphere: UNANSWERED
+   
+New material:
+--------------------------------------------------------------------------------
+qubit gates (ops on single qubits)
+ - change of basis
+   - |0>,|1> -> |+>,|->
+   label01:
+   - |0> = 1/\sqrt{2}( |+> + |->)
+   - |1> = 1/\sqrt{2}( |+> - |->)
+   - operator H
+     - H maps |0> -> |+>
+     - H maps |1> -> |->
+     - H = 1/\sqrt{2} [[1,1],[1,-1]]
+PAGE 1, LECTURE 3, FIGURE 3: write out H
+     - columns match where |0> and |1> are mapped (in terms of |+>, label01)
+     - H|0> = 1/\sqrt{2} [[1,1],[1,-1]][1,0]^t = 1/\sqrt{2}(|0> + |1>)
+       - etc
+     - H: Walsh Hadamard transform
+       - single qubit gate
+       - also known as W, W_2
+     - is it unitary?
+       - H^H = H (real, symmetric)
+       - verify H^2 = H^H H= I, unitary
+     - |0> -> H|0> -> H^2|0> = |0>
+       - destructive interference
+PAGE 1, LECTURE 3, FIGURE 3: write out tree illus destructive interference
+   - Pauli Matricies (NOT gate)
+     - X = [[0,1][1,0]]
+     - a NOT gate
+PAGE 2, LECTURE 3, FIGURE 5: write out X
+     - aX|0> + bX|1> = a|1> + b|0>
+     - X^H = X, real, symmetric, unitary
+     - eigenvalues = +-1 (as all unitary)
+     - X|+> = X((|0>+|1>)/\sqrt(2)) = ((|1>+|0>)/\sqrt(2)) = |+>
+     - X|-> = -|-> (for \lambda = -1
+     - bloch sphere, on the x-axis
+   - Another Pauli matrix
+     - Y = [[0, -i], [i, 0]]
+PAGE 2, LECTURE 3, FIGURE 7: write out Y
+       Y^H = [[0, -i], [i, 0]] = Y
+       Y|0> = i|1>
+       Y|1> = -i|0>
+       Y(a|0> + b|1>) = i(a|1> - b|0>)
+     - eigenvectors lie on the y-axis
+       |\circlestar> = 1/\sqrt{2}[1, i]^t = 1/\sqrt{2}(|0> + i|1>)
+       |\circledot>  = 1/\sqrt{2}[1, -i]^t = 1/\sqrt{2}(|0> - i|1>)
+PAGE 2, LECTURE 3, FIGURE 6: write out |\circlestar>, |\circledot>
+     - Y|\circlestar> = |\circlestar> (left to the reader)
+       Y|\circledot> = |\circledot> (left to the reader)
+   - Z gate (phase flip gate)
+     - Z = [[1,0],[0,-1]]
+PAGE 2, LECTURE 3, FIGURE 8: write out Z
+     - Z(a|0> + b|1>) = a|0> - b|1>
+       hence, why it's called a phase flip (e^i\theta changes)
+       = a|0> - e^(i\pi)b|1>
+   - S (phase gate)
+     S = [[1,0],[0,i]]
+PAGE 2, LECTURE 3, FIGURE 9: write out S
+     the i adds in e^(i\pi/2) shift
+     - S^2 = [[1,0],[0,-1]] != I
+       S = \sqrt{Z}
+   - \pi/8 gate
+     T = [[1,0],[0,e^(i\pi/4)]]
+PAGE 2, LECTURE 3, FIGURE 10: write out T
+     - why pi/8? because we can write it in terms of \pi/8
+PAGE 2, LECTURE 3, FIGURE 11: write out T in terms of \pi/8
+       T = e^(i\pi/8)[[e^(-i\pi/8),0],[0,e^(i\pi/8)]]
+     - T = \sqrt{S}
+   - and so on, with smaller rotations
+
+write out an arbitrary operator in a different base
+ - X = |1><0| + |0><1| = [[0,0],[1,0]] + [[0,1],[0,0]]
+ - orthonormal basis e_i
+   I = \Sigma e_i e_i^T
+ - I = |0><0| + |1><1|
+   U = UI = U|0><0| + U|1><1| = |S><0| + |T><1| (S and T defined as U|0> etc)
+ - what about Y = |?><0| + |??><1|
+
+----------------------------------------
+Lin alg review
+ - unitary
+   - eigenvalues \lambda, \lambda |\lambda| = 1
+     \lambda = e^(it), t \in R
+   - proof:
+     || |\nu> || = 1
+     U|\nu> = \lambda|\nu>
+     <\nu|U^H =  \bar\lambda <\nu|
+     <\nu|U^H U |\nu> = \lambda \bar\lambda <\nu|\nu>
+     <\nu|\nu> = 1 = |\lambda|^2 = 1
+ - spectral theorem
+   - if A is normal (normal matrix A: A^H A = A A ^H)
+     // [A, A^H] (commutator)
+     // [A, A^H] = A^H - A^H A = 0
+     // otherwise, A = A^H (unitary and symmetric are normal)
+   - A = Q \Lambda Q^H
+     Q = [|\nu_i>_i] // unitary eigenvector matrix
+     \Lambda = diagonal matrix made of eigenvalues on diagonal
+     diagonalizable
+ - NO NAME
+   - A = A^H => \lambda \in R
+   - A|\nu> = \lambda|\nu>
+     <\nu|A|\nu> = \lambda <\nu|\nu> = \lambda, if || |\nu> || = 1
+     <\nu|A^H = <\nu|\bar\lambda
+     <\nu|A^H|\nu> = \bar\lambda <\nu|\nu> = \bar\lambda, if || |\nu> || = 1
+     \bar\lambda = \lambda (because real)
