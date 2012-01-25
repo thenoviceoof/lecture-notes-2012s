@@ -1,0 +1,124 @@
+PLT
+2012/01/25
+#03
+================================================================================
+
+talking about lang design
+
+always keep end user in mind, concrete problems
+
+going to talk about how awk was born/motivations/whatever
+
+--------------------------------------------------------------------------------
+AWK
+
+problems:
+ - hello world
+ - count lines containing some string
+ - accumulate across flat-file databases
+
+la la la
+data types
+ - strings
+ - numbers
+
+talking about grep (missed the point of this)
+
+computational model
+pattern-action programming
+ - pattern match, action (like haskell?)
+   example patterns:
+   - BEGIN
+     BEGIN { print "Hello, World!" }
+   - regex; 
+     /some_string/ { count + 1 }
+     END { print count }
+
+talking about integers/floats
+ ex. END { print 4/3 }
+
+talking about difference between strings and numbers
+ ex. phone numbers are not numbers, can't add license numbers
+
+END { print 1e234 } // this is floating point
+END { print "1e234" } // yes, this is string
+
+assoc arrays
+regex - epsilon (null) matches everything
+ { total[$1] += $2 } // space delimited arrays by line
+end { for(x in total) print x, total[x] }
+
+talking about bell labs yay
+
+--------------------------------------------------------------------------------
+structure of a compiler
+
+compiler in: source
+complier out: error, target
+target in: input
+target out: output (includes runtime errors)
+
+front end: analysis
+ back end: synthesis
+
+IR: Intermediate representation(s)
+
+Phases (starting from character stream)
+ - lexical analyzer (scanner)
+   outputs token stream
+ - syntax analyzer (parser)
+   checks things like balanced parens
+   mostly error checking?
+   outputs syntactic tree
+ - semantic analyzer
+   checks type compat/incompat, among other things
+   outputs MOAR SYNTATIC TREES (missing first word)
+TRANSITION FROM FRONTEND TO BACKEND
+ - intermediate code generator
+   outputs some IR (parrot: bytecode, jvm: MOAR BYTECODE)
+ - code optimizer (machine indep)
+   output still in IR, but better
+ - code generator
+   outputs machine code
+ - machine-specific code optimizer
+   again, more machine code, but machine dependent
+
+EXAMPLE
+pos = init + rate * 60
+- lexical analyzer
+id_1 = id_2 + id_3 + 60
+- syntatic analyzer
+PAGE 3, LECTURE 3, FIGURE 1: output syntax tree
+- semantic analyzer
+adds inttofloat on 60, because floats are awesome
+- intermediate code gen
+ t_1 = inttofloat(60)
+ t_2 = id_3 * t_1
+ t_3 = id_2 + t_2
+ id_1 = t_3
+- code optimizer
+ t_1 = id_3 * 60.0 // auto convert 60 as a const at compile time
+ id_1 = id_2 + t_1
+- code generator
+ NOT GONNA WRITE THIS MACHINE CODE HAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHAHA
+- and so on
+
+Symbol table
+ - holds references to different identification tokens
+Error handler
+ - ?
+Compiler component generators
+ - lexical analyzer generators: lex, flex
+   huh, using lex to look at natural languages?
+ - syntax analyzer generator: yacc, bison
+ - front-end generator: antlr
+
+----------------------------------------
+The Lexical Analyzer
+PAGE 3, LECTURE 3, FIGURE 2: diagram of the lexical analyzer
+lexer finds the next token
+ by space, etc
+lexer strips out whitespace
+sometimes depends on lookahead for next token (ex. fortran)
+
+yay, class lets out early
