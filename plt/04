@@ -1,0 +1,97 @@
+PLT
+2012/01/30
+#04
+================================================================================
+Spec/creating a lexer
+regex, lex lang
+
+Lexer (let's make a lexer!)
+ - <ID, i> output of lexer (token)
+   ID is token name
+   i is ptr to symbol table
+ - pattern
+   des of set of lexees making up given token
+ - ex. pattern regex
+   mostly talking about new terminology
+   alphabet = set of symbols (finite)
+   lang = set of string
+
+Recovering regexs
+ - basis, denotation {a, \epsilon (empty string), \null (empty set)}
+ - Induction
+   syntax (r, s are regexs):
+   - (r)|(s) => L(r)\union L(s)
+     (r)(s) => L(r)L(s)
+     (r)* => (L(r))*
+     (r) => L(r)
+   x\in L(r), then r generates/matches x (derp)
+   precedence rules
+   - *, +, union (left associative)
+ - extended regex
+   character classes, + complement
+ - mention pcre
+
+Lex regex - ex. floating point forma
+ - [+-]?[0-9]+(\.[0-9])?(E[+-]?[0-9]+)
+ - b*(a|bb+)*b*
+   all a's and b's except aba
+
+choose the defaults well
+
+hw exercise
+ - a's, b's, c's with no two adj (repeated) chars
+
+Lex - example
+--------------------
+declarations
+%%
+translation rules
+%%
+aux fns
+--------------------
+ - print all alphabetic words in a file
+--------------------
+%%
+[A-Za-z]+ { printf("s\n", yytext); } // yytext is ptr to str actually matched
+.|\n { } // do nothing for anything else
+%%
+--------------------
+ - Lex takes the longest match possible (LIKE A BOSS)
+ - print # words, numbers, lines in a file (wc)
+--------------------
+int nwords = nnums = nlines = 0;
+word [A-Za-z]+
+num [0-9]+
+%%
+{word} {++nwords;}
+{num} {++nnums;}
+\n {++nlines;}
+. {}
+%%
+int main() {
+    yylex();
+    printf("%d, %d, %d", nwords, nnums, nlines);
+}
+--------------------
+ - WHAT THE FUCK (no ending semicolon)
+ - yay lex
+ - Lex for a programming language
+--------------------
+delim [ \+\n]
+ws {delim}+
+letter [A-Za-z]
+digit [0-9]
+id {letter}({letter}|{digit})+
+number {digit}+ // squiggly line
+%%
+{ws} {}
+if {return(IF);}
+else {return(ELSE);}
+{id} {yylval = (int)installID();
+      return(ID);}
+"<" {yylval = LT; return(RELOP);}
+"<=" {yylval = LE; return(RELOP);}
+%%
+--------------------
+ - lex.l -> lex -> lex.yy.c
+ - into cc, etc
