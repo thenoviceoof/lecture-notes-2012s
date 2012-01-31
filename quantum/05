@@ -1,0 +1,109 @@
+Quantum Computing
+lecture #5
+2012/01/31
+================================================================================
+
+Got to class late, like 5min
+
+U = Q \Lambda Q^H = \Sigma \lambda_j |U_j><U_j|
+  = |s><0| + |t><1| where U|0> = |s>, U|1> = |t>
+ - what's the advantage?
+ - compute without thinking
+   function f: C->C, well defined at \lambda{1..n}
+   f(v) = \Sigma_j f(\lambda_j) |u_j><u_j|
+ - example: X
+   X = 1|+><+| + (-1)|-><-|
+   \sqrt{X} = \sqrt{1}|+><+| + \sqrt{-1}|-><-|
+   not obvious how to do it with:
+   X = |1><0| + |0><1|
+   (essentially problem 1)
+   
+page 75
+f(t) = \Sigma a_n t^n // exponentiation! power series!
+f(X) = \Sigma a_n X^n
+
+Review:
+ - multiple qubit systems (gates)
+ - hilbert spaces of dim 2^n
+ - |j> = |j_{m-1}..j_{0}> where j_i are binary
+ - I = \Sigma_j |j><j|
+   |j><j| = matrix with 1 at (j+1,j+1)
+ - tensor products
+   |i_1> \tensor |i_2> = |y_1y_2> = |y_1>|y_2>
+   (remember, \tensor = \circlecross)
+   \Pi_k |y> = |y...y> (k times) = |y>^{\tensor k}
+ - tensor k times on H|0>
+   (H|0>)^{\tensor k} = ((|0>+|1>)/2)^{\tensor k}
+   = 1/2^(k/2) [1... (2^k times)]^t
+
+look at the examples of worked problems
+
+--------------------------------------------------------------------------------
+Properties of tensor products
+ 1 covered associativity last class
+ 2 |x> \tensor |y> (multiplicative constant)
+   a(|x> \tensor |y>) = (a|x>)\tensor |y>
+   derp
+ 3 |x_1>, |x_2>, |y> (distributive)
+   (|x_1 + |x_2) |y>= |x_1>|y> + |x_2>|y>
+   |y>(|x_1 + |x_2) = |y>|x_1> + |y>|x_2>
+ 4 (A\tensor B)(C\tensor D) = (AC)\tensor(BD) (another distributive rule)
+   // with appropiate implicit matrix multiplications
+ 5 (A\tensor B)(|x>|y>) = (A|x>)\tensor(B|y>)
+ 6 (A\tensor B)(\Sigma c_j|x_j>|y_j>) = \Sigma c_j(A|x_j>)\tensor(B|y_j>)
+ - ex. (H|0>)^{\tensor k}
+   = H^{\tensor k} |0>^{\tensor k}
+ 7 (A\tensor B)^H = A^H \tensor B^H
+ 8 A,B are unitary, then A\tensor B is also unitary
+   PROOF
+   A^H A = I // unitary
+   from property 7:
+   (A\tensor B)^H (A\tensor B) = (A^H\tensor B^H) (A\tensor B)
+   from property 4:
+   = (A^H A)\tensor (B^H B) = I \tensor I = I
+   hence, unitary
+ - eg. H^{\tensor k} is unitary just because H is
+ 9 let |y> = |y_1>|y_2> (len n,m), |x> = |x_1>|x_2> (len n,m)
+   note: conjugate transform in the same order (<y| = <y_1|<y_2|)
+   <y|x> = (<y_1|<y_2|)(|x_1>|x_2>) = <y_1|x_1> \tensor <y_2|x_2>
+   but, tensor product of scalars is just the product
+   <y_1|x_1> \cdot <y_2|x_2> = <y|x>
+   ex. <10|00> = 0 (derp)
+   state the obvious: differing basis vectors are ortho
+   example:
+     <00|X\tensor H|01> = <00|(X|0>\tensor H|1>)
+     = <00|(|1>(|0>-|1>)/\sqrt{2}) = <0|1>(<0| (|0>-|1>)/\sqrt{2}) = 0
+   example:
+     <10|X\tensor H|01> = <1|X|0><0|H|1>
+     = 1\cdot <0|(|0>-|1>)/\sqrt{2} = 1/\sqrt{2}
+   form:
+     <j_a..j_0| \tensor_{i..0} X_i |m_b...m_0>
+
+
+part of problem 2
+example:
+H^{\tensor k} |j>; where j is a computational basis state (along axes)
+H^{\tensor k} |j> = 1/2^{k/2} \Sigma_{m=0}^{2^k-1} (-1)^(m\cdot j) |m>
+then:
+H^{\tensor k} |0> = 1/2^{k/2} \Sigma_{m=0}^{2^k-1} |m>
+break up j and m into binary data, treat as vectors
+"dot product": \Sigma j_i m_i (mod 2)
+PROOF:
+// Start with a base case:
+H|j_s> = ( |0> + (-1)^j_s |1> ) / \sqrt{2}
+// Move up to the next case:
+(H|j_s>)\tensor(H|j_L>)
+ = (|0>+(-1)^j_s|1>)/\sqrt{2} \tensor (|0>+(-1)^j_L|1>)/\sqrt{2}
+ = 1/2 ( |00> + (-1)^j_L|01> + (-1)^j_s|10>+ (-1)^(j_s+j_L)|11>)
+// see that we have all the |m>, but don't know the coefficient:
+H^(\tensor k) |j> = 1/2^{k/2} \Sigma_{m=0}^{2^k-1} ??? |m>
+// observe bits of |m>:
+[ (|0> + (-1)^j_(k-1)|1>)/\sqrt{2} ...
+  (|0> + (-1)^j_(s)|1>)/\sqrt{2} ...
+  (|0> + (-1)^j_(0)|1>)/\sqrt{2} ]
+if 0 in position S does not affect the amplitude
+if 1 in position S, and m_(j_s) = 1,
+   will contribute a (-1) only if j_s = 1
+   so if m_s = 1, then factor (-1)^(j_s m_s)
+   hence:
+   (-1)^{\Sigma j_i m_i} = (-1)^{j \cdot m}
