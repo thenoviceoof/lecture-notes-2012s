@@ -1,0 +1,94 @@
+Embedded Systems
+Lectures #3
+2012/01/31
+================================================================================
+Back to lectures!
+
+Talk about 1st lab: apparently, class size is much smaller
+Do it in simulation, but really do it on hardware too
+
+Reminder: VHDL is _NOT_ like programming
+ - get a vision of the hardware you want, and then write the VHDL to get that
+   hardware
+
+Recoverng some material: basic VHDL things
+
+--------------------------------------------------------------------------------
+Getting a carry-out from 8-bit addition
+ - traditionally, no carryout with straightforward +
+ - have to use a trick: 9-bit signal, and ("0" & ci). (& is vector concat)
+   this way, everything gets upgraded (sign extend) to 9-bit vectors
+ - the ("0" & ci) is a bit of a magical incantation (ish)
+
+very simple ALU
+use "when ... else ..." for add and sub
+ - note: subtraction won't throw errors, because we're in hardware
+
+arithmetic operators: returns booleans, not logic type
+  hence, you have to: GE <= '1' when A >= B else '0';
+  probably implemented as a stripped down adder?
+
+my, my, Edwards really likes to rip on VHDL
+
+talking off the chip
+ - external wires are expensive
+ - so, you share in/out on the pins
+ - 'Z' yay high impedance
+
+talking about multiplication
+ - by constants, or small arbitrary numbers okay
+ - 128/256 bit numbers? might take up the whole chip
+
+lololol exponentiation
+
+note: you can't nest when/else
+
+----------------------------------------
+how to use components
+ - old style
+   implicit port map order (positional)
+ - new style
+   explicit keyword mapping
+ - direct instantiation
+   no declaration, project.something reference
+   edwards likes this one
+   have to make sure the library is compiled first
+
+generate
+ - acts as a macro: generates multiple statements
+   for x in 0 to 7 generate ... end generate;
+
+--------------------------------------------------------------------------------
+Combinational logic in a procedural style
+
+process
+ - watch signals, run when there's a change in a variable in the list
+ - remember: oh! you mean a mux (from elsif)
+ - note: no glitch in process, outputs only the last assignment
+ - note: no (when else) or (when select)
+
+Address decoder
+ - see slides
+
+--------------------------------------------------------------------------------
+Sequential Logic
+
+use process! again!
+ - sensitive to CLK, possibly only CLK
+ - especially rising_edge(CLK)
+
+synchronous reset
+ - check reset, derp
+asynch?
+ - add reset to sensitivity list
+
+can't write to outputs? just copy internal signals to outputs
+
+synchronous RAM
+ - use ram_type
+ - use RAM(TO_INTEGER(address))
+ - works with both i/o
+ - library, RAM doesn't need 'Z' stuff
+
+small ROM?
+ - constant ROM : rom_type := (stuff...);
