@@ -1,0 +1,113 @@
+PLT
+2012/02/01
+#05
+================================================================================
+Talking about language ideas
+ - 3 concrete problems!
+   //concrete boots, concrete hats, concrete gloves. SOLVED//
+   And then fix those problems!
+ - concrete syntax/semantics by feb 22nd? nah
+
+summarize everything about finite automata we need to know
+
+--------------------------------------------------------------------------------
+Finite automata
+
+PAGE 3, PLT, LECTURE 5, FIGURE 1: drawing a DFA
+Given DFA def:
+  S = {A, B, C, D}
+  \Sigma = {a, b}
+  \delta : S \cross \Sigma -> S
+  initial state: A
+  set of final states: {A,}
+Language?
+ - L(M) = {w | w \in {a,b}* and even(count_a(w)) and even(count_b(w))}
+ - proof by induction (REVIEW THIS, going to be on midterm)
+Associated regex?
+ - in the book
+ - la la la
+
+NFA (nondeterministic, REMEMBER???)
+ - \delta : S \cross \Sigma -> P(S) // set of next states
+ - la la la we know this stuff
+\epsilon-NFA
+ - \delta : S \cross (\Sigma \union {\epsilon}) -> P(S)
+
+Converting to C?
+----------------------------------------
+s = A;
+c = nextchar();
+while(c != eof) {
+  s = \delta(s,c);
+  c = nextchar();
+}
+if (s is in F)
+  return "yes";
+else
+  return "no";
+----------------------------------------
+runs in linear O(m+n) time // if |S|=m, |w|=n
+although this might happen: m = 2^|n| (?)
+go through inputs, do lookups (skeptical about the m)
+
+Boyer-Moore
+ - do better than linear
+ - it's the grep algo
+ - skip around with length of input
+
+haha, ripping on perl
+ - theory: NFA's faster, PCRE is slow
+
+FA/RE tradeoffs
+  R = (a|b)*a(a|b)(a|b)a(a|b)
+  AHO Y U ERASE BOARD
+
+Problem given last time
+ - oh wow, I'm dumb. that's actually a really straighforward DFA
+PAGE 3, PLT, LECTURE 5, FIGURE 2: drawing of the DFA
+
+Kleene's algorithm: what sid did
+ - converting regex to DFA
+
+McNaughton-Yamada-Thompson algorithm (MYT)
+ - go from regex to \epsilon-NFA
+ - construct parse tree for a regex, create parse trees, put those together
+PAGE 3, LECTURE 5, FIGURE 3: basic blocks of converting regex to \epsilon-NFAs
+PAGE 3, LECTURE 5, FIGURE 4: combining blocks from operations
+ - shows an example converting a regex to a parse tree, to an NFA
+ - Properties of MYT algorithm output? (N is generated NFA, r length of regex)
+   1. # states in N <= 2r
+      from looking at constitute transformations
+   2. N has 1 init state, one final state
+   3. each state has at most 2 outbound transitions
+
+Two stack algorithm to simulate an MYT-NFA
+  input:  \epsilon-NFA N, string w
+  output: if "w" \in L(N), then "yes", elso "no"
+  method:
+----------------------------------------
+// epsilon_closure: all states reachable by \epsilon transitions
+S = \epsilon-closure(s_0);
+c = nextchar();
+while(c != eof) {
+  s = \epsilon-closure(\delta(S,c));
+  c = nextchar();
+}
+if((S \intersection F) != \null)
+  return "yes";
+else
+  return "no";
+----------------------------------------
+to check for duplicate things in lists:
+ - check/set bit-vector before adding to the list
+ - didn't catch what this was called
+
+and that's all we need to know about FA's!
+
+next lecture: what we can do with regex's in language design
+
+reference the pumping lemma
+
+note: this is dumb. why don't we just assume people already know this?
+
+look at practice problems (on website)
