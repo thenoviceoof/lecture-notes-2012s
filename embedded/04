@@ -1,0 +1,87 @@
+Embedded Systems
+Lectures #4
+2012/02/02
+================================================================================
+4 person groups: okay
+
+--------------------------------------------------------------------------------
+Sequential Logic
+
+saw most of these last lecture:
+ - D flip-flops
+ - shift registers
+ - RAMs/ROMs
+
+talking about dataflow signals vs. variable
+ - signal assignment only takes effect after the loop (process)
+ - variable assignment takes effect immediately
+also, scoping:
+ - signals are scoped to the architecture
+ - variables are scoped to the local process
+
+okay, not listening to the drawn out explanation of the above conundrum
+reading about mono-slam instead
+
+mixing signals and variables: don't do it, you will confuse yourself
+oh, blocking vs. non-blocking assignment
+in short: JUST USE SIGNALS
+
+define your magic numbers as constants
+----------------------------------------
+arch... is
+  constant THING : integer := 800;
+begin
+  process...
+----------------------------------------
+
+--------------------------------------------------------------------------------
+FSM (Finite state machines)
+
+recover: moore vs. mealy
+ - typically, more states for moore FSMs
+ - but chaining mealy machines: you might get a really long critical path
+
+use symbolic state names (enum):
+----------------------------------------
+arch... is
+type states is (...);
+begin...
+----------------------------------------
+for moore:
+body has a case on state, move to state depending on inputs
+
+for mealy:
+have multiple processes, each watching a state/inputs
+when state, then do something
+
+Example: traffic light controller
+
+drawing a bubble/arc diagram, yak yak yak
+
+--------------------------------------------------------------------------------
+Review modeling styles
+ - dataflow (combinational), bunch o statements/expressions
+ - procedural combinational, use a process
+ - procedural sequential, use CLK
+
+--------------------------------------------------------------------------------
+Ten commandments of VHDL
+ 1. design before coding
+    - draw a block diagram
+    - understand the timing
+    - do FSM diagrams
+ 2. be synchronous
+    - global clock! yay!
+    - don't generate asynch reset signals, only external
+    - don't generate clock signals, use multiplexers for enable
+ 3. be sensitive
+    - list all the things you're looking at as sensitive (if combinational)
+ 4. assign all outputs, for all input sets
+    - ex. set all outputs to defaults first, then set based on inputs
+ 5. enumerate states
+    - the enum stuff we mentioned before
+ 6. there is no rule six - we'll pick up next time
+ 7. 
+ 8. 
+ 9. 
+ 10. 
