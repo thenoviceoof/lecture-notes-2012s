@@ -1,0 +1,156 @@
+Quantum Computing
+lecture #6
+2012/02/02
+================================================================================
+Got to class way early
+
+going to move forward, yay!
+
+see the gates and stuff in action now, and do proofs
+
+4 blackboards? just getting started for breakfast
+
+--------------------------------------------------------------------------------
+Review:
+specular(spec? "spectral") decomposition
+  U = \Sigma^{2^n-1} \lambda_j |u_j><u_j|
+  f(U) = \Sigma^{2^n-1} f(\lambda_j) |u_j><u_j|
+remember: |x><y| called outer product, produces a matrix (derp)
+
+computational basis states
+  |i><j| = [...0...] + 1_(i+1, j+1) (matrix with 1 in [i+1, j+1], 0 else)
+completeness relation, decompose an identity matrix:
+  I = \Sigma^{N-1} |i><i|
+(note: ^ going to be useful for the HOMEWORK)
+
+Review properties of tensor product
+  see lecture #5
+  relevant:
+ - (A\tensor B) (|x>|y>) = (A|x>)\tensor(B|y>)
+ - <y_1y_2|A\tensor B|x_1x_2> = <x_1|A|y_1> \cdot <x_2|B|y_2>
+   // expands to generally
+   dot products, down to scalars (y^t M x = c)
+ - H|j_s> = (|0> + (-1)^j_s|1>)/\sqrt{2}
+ - H^{\tensor k} |j> = \tensor_i H|j_i> =
+   1/2^{k/2} \Sigma_m^{2^k-1} (-1)^{j\dcot m} |m>
+   (j \cdot m, with mod 2)
+
+--------------------------------------------------------------------------------
+Examples
+ - (Y\tensor T) |11> = (Y|1>)\tensor(T|1>)
+   // Y = [[0, -i][i, 0]], T = [[1,0],[0, e^(i\pi/4)]]
+   = -i|0> e^{i\pi/4}|1> // implicit tensor
+   = e^{-i\pi/4}|01>
+ - (Y\tensor T)(X\tensor T) = YX \tensor T^2 = YX\tensor S
+ - <101|001> = 0 // because ortho
+ - <101|X\tensor H\tensor H|011>
+   = <1|X|0> <0|H|1> <1|H|1>
+   // H|1> = (|0>-1>)/\sqrt{2}
+   = <1|1> <0|(|0>-1>)/\sqrt{2} <1|(|0>-1>)/\sqrt{2}
+   = 1 \cdot 1/\sqrt{2} -1/\sqrt{2} = -1/2
+
+--------------------------------------------------------------------------------
+New stuff: Controlled gates (multi qubit gates)
+
+Controlled NOT, CNOT, Ctl-X, Ctl-NOT
+  use CNOT notation
+2 qubit gates: |ij>
+
+|00> -> CNOT -> |00>
+|01>            |01>
+|10>            |11>
+|11>            |10>
+if the first bit is one, then the second bit is flipped
+
+|ij> -> CNOT -> |i>|NOT j> (or (i+j)(mod 2)) (or i \xor j)
+
+PAGE 2, LECTURE 6, FIGURE 1: drawing of the CNOT circuit
+
+Matrix for CNOT gate? 4x4 size
+ - to fill out the matrix, each column maps an input to an output
+ - |00> -> |00>, so [1 0 0 0]^t -> [1 0 0 0]^t
+CNOT = [[1 0 0 0]
+        [0 1 0 0]
+        [0 0 0 1]
+        [0 0 1 0]]
+CNOT = [[I 0]
+        [0 X]] // each submatrix 2x2
+
+how do we check CNOT is unitary
+  CNOT^H CNOT = I
+  CNOT CNOT = I
+   = [[I^2 0  ]
+      [0   X^2]]
+   = I
+
+check for reversible
+|i,j> CNOT |i, i\xor j> CNOT |i, i\xor (i\xor j)> = |ij> = I
+
+PAGE 2, LECTURE 6, FIGURE 2: control by 1 or 0 (enable or \bar{enable})
+
+Understanding role of control/target qubits
+|->|-> CNOT |->|->
+|->|+>      |+>|+>
+|+>|->      |+>|->
+|+>|+>      |->|+>
+1st bit is target, 2nd is ctrl
+
+thoughts wandered:
+PAGE 5, LECTURE 6, FIGURE 3: not sure what this was about. X's ops on i/o
+
+CNOT(H|i> H|j>) = 1/2 CNOT( |00> + (-1)^j|01> + (-1)^i|10> + (-1)^(i+j)|11> )
+ = 1/2( |00> + (-1)^j|01> + (-1)^i|11> + (-1)^(i+j)|10> )
+ = 1/\sqrt{2} ( |0>(|0>+(-1)^j|1>)/\sqrt{2} +
+                (-1)^(i+j)|1> ( |0> + (-1)^j|1> )/\sqrt{2} )
+ = ( ( |0> + (-1)^(i+j)|1> )/\sqrt{2} ) ( ( |0> + (-1)^j|1> )/\sqrt{2} )
+ = H|i\xor j> H|j>
+
+PAGE 5, LECTURE 6, FIGURE 4: circuit diagram of the above operation
+
+|ij> - H^\tensor2 - H|i>H|j> - CNOT - H|i\xor j>H|j> - H^\tensor2 - |i\xor j>|j>
+
+--------------------------------------------------------------------------------
+U, arbitrary single qubit gate
+Ctl-U
+function table:
+in      out
+--------------------
+|00>    |00>
+|01>    |01>
+|10>    |0>U|1>
+|11>    |1>U|1>
+
+then:
+|ij> -> Ctl-U -> |i> U^i |j> // apply U if i = 1
+
+then we can define CNOT (X):
+|ij> -> Ctl-X -> |i> X^i |j>
+
+Ctl-U =
+[[I 0
+  0 U]] // 4x4 matrix
+
+Ctl-U^H = 
+[[I 0
+  0 U^H]]
+
+--------------------------------------------------------------------------------
+some food for thought:
+give us the matrix, me think about the circuit
+M =
+[[1 0 0 0]
+ [0 1 0 0]
+ [0 0 1/sqrt2 1/sqrt2]
+ [0 0 1/sqrt2 -1/sqrt2]]
+= Ctl-H
+
+PAGE 5, LECTURE 6, FIGURE 5: Ctl-H gate repr
+
+M_1 =
+[[1/sqrt2 0 0 1/sqrt2]
+ [0       1 0 0]
+ [0       0 1 0]
+ [1/sqrt2 0 0 -1/sqrt2]]
+= ?
+
+FIND THIS CIRCUIT (5 extra points in the midterm)
