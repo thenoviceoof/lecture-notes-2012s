@@ -1,0 +1,80 @@
+PLT
+2012/02/06
+#06
+================================================================================
+Outline
+--------------------------------------------------------------------------------
+Pumping lemma for regular langs
+Properties of:
+ - CFG's
+ - Derivations + Parse Trees
+ - Ambiguity
+
+Aho is talking about carrots...
+
+--------------------------------------------------------------------------------
+Pumping lemma for reg langs
+
+reviewing the token-passing lexer/symbol table/parser
+
+making your own parser
+  recursive descent parser
+  bottom-up parsing (LR)
+
+Talking about regular langs as subset of context free langs
+  want to talk about what you can do with reglangs
+
+Pumping lemma:
+  for every reglang L, exists const n such that if w\in L, |w|\geq n
+  then w = xyz, where
+    y\neq \epsilon
+    |xy|\leq n
+    for k\geq 0: xy^kz \in L
+  essentially, reglangs can't count
+  given lang, choose n and w, force xyz to conform, hence contradiction
+
+ex. L = {a^m b^m | m\geq 0}, prove L is not regular
+w = a^n b^n
+xz = a^p b^n (p < n), hence L not reg
+
+--------------------------------------------------------------------------------
+Properties of reglangs
+  closed under union, intersection, complement
+  also reversal and kleene star
+  homomorphism, inverse homomorphism
+
+For the homework: suggest by aho, show through inverse homomorphism
+  h(a) = aa
+  h(b) = bb
+  (ab)*|(ba)*b|a|b|\epsilon
+
+--------------------------------------------------------------------------------
+Context free grammars
+  useful for representing syntactic structure of langs
+  talking about representing in BNR (Backus-Naur Form)
+  terminal/nonterminal symbols, rewrite rules (all finite), 1 start symbol
+  talking about derivation of CFG strings from productions
+  la la la drawing a parse tree
+
+leftmost derivation: expand strings from left to right
+
+--------------------------------------------------------------------------------
+Ambiguity grammar
+  E -> E + E | E * E | (E) | id
+  could parse E+E*E two different ways
+  2 parse trees for the same sentence: ambiguous grammar
+
+talking about precedence
+  left/right precedence
+
+Are CFLs inherently ambiguous?
+  CFL has no unambiguous grammars, then it is inherently ambiguous
+  example CFL:
+    { a^m b^m a^n b^n | m,n\geq 0 } \union { a^m b^n a^n b^m | m,n\geq 0 }
+    this is inherently ambiguous
+
+Two classes of CFL languages
+  LL1
+    unambiguous
+  LR2
+    ambiguous
