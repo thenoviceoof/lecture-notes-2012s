@@ -1,0 +1,121 @@
+Embedded Systems
+Lectures #5
+2012/02/07
+================================================================================
+
+Got in late, reviewing 10 commandments
+
+--------------------------------------------------------------------------------
+Ten commandments of VHDL
+ 1. design before coding
+    - draw a block diagram
+    - understand the timing
+    - do FSM diagrams
+ 2. be synchronous
+    - global clock! yay!
+    - don't generate asynch reset signals, only external
+    - don't generate clock signals, use multiplexers for enable
+ 3. be sensitive
+    - list all the things you're looking at as sensitive (if combinational)
+ 4. assign all outputs, for all input sets
+    - ex. set all outputs to defaults first, then set based on inputs
+ 5. enumerate states
+    - the enum stuff we mentioned before
+    - if you leave something out, error message. yay!
+ 6. there is no rule six - we'll pick up next time
+--------------------------------------------------------------------------------
+ 7. one asynch reset (in the watch list)
+    or, better, a synch reset
+ 8. have one version: simulation is very slow
+    don't test imaginary things (only test signals present in hardware)
+    NO MULTIPLE CLOCKS
+ 9. don't test for X or Z
+    assign, yes. test for, no
+ 10. don't specify delays meant for hardware
+     only use them in test benches
+
+--------------------------------------------------------------------------------
+Other ways to screw up
+
+ - don't assign boolean to std_logic
+   use when...else
+ - don't test for std_logic in a boolean context
+ - inferring a latch
+   don't do it // missed this
+ - reading an output port
+   use an intermediate port
+ - complex port map args
+   use intermediate signals to do vector wrangling
+ - Don't use combinational loops
+   drive 1 process or concurrent assignment
+   don't use SR latches. use D flip-flops
+ - clock gating
+   DON'T DO IT
+   use latch enables instead
+ - multiple clock domains
+   DON'T DO IT FUCKER
+
+Testbenches
+ - use VHDL to do the testing
+ - explicit delays available, also delay for an event
+ - also have asserts
+ - cannot always be synth'd, so put it in a different file
+ - define a clock, # signals = # ports
+ - fairly fast simulation doing
+
+okay, done with VHDL idioms we need
+
+--------------------------------------------------------------------------------
+Networking 101
+  stuff we need for lab 2
+
+Creating raw ethernet packets? Oh god why
+
+carrier sense, mult access/carrier detect protocol
+ - try talking while listening
+ - interruption? back off for a bit
+ - the listening stuff is handled by the ethernet chip
+
+some history: 10base-5
+ - huh, vampire tap into a shared line (coax)
+ - then link into the computer
+ - shared medium, like ethernet
+10base-2
+ - use coax BNC T-connectors
+10base-T
+ - switch to star topology
+ - // in lab, have a couple hubs sitting around to link to
+CAT 5 cable
+ - using straight-through cable (not crossover)
+
+Ethernet frame
+ - var byte len
+ - 7: preamble
+ - 1: SOF (start of frame)
+ - 6: dest
+ - 6: src
+ - 2: type (IP, 0x0800)
+ - var: payload (46-1500)
+ - 4: checksum
+byte ordering
+ - bytes are LSB first
+ethernet (MAC) addresses
+ - 48-24 bits for vendor
+ - bit 41, group/something else
+ - 23-0 bits for serial number
+ - // going to use broadcast address, FF:FF:FF:FF:FF:FF
+IP header
+ - version, lengths of header and packet, id number, frag offset, TTL, protocol
+   (TCP, UDP)
+ - TTL - reach zero, throw away. combat loops
+ - // using UDP for lab 2
+ - oh noes only 32 bits for ip addresses
+ - // expecting sending well formed IP packets
+ - IP header checksum
+   one's complement addition on 16 bit elements
+   (checksum hole, fill with checksum to check)
+ - and, going to broadcast IP address
+UDP packets
+ - dumb packet protocol
+
+and break!
