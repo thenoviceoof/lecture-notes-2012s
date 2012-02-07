@@ -1,0 +1,176 @@
+Quantum Computing
+lecture #7
+2012/02/07
+================================================================================
+
+Whoops, forgot to do that extra credit thing
+
+--------------------------------------------------------------------------------
+Review: Controlled gates
+
+ways to define an operation
+ - fill out a states mapping    |00> => |01> ... etc
+ - write out states equation    |i>|j> => |i>|i\xor j>
+ - draw the circuit
+ - matrix
+
+CNOT - can think of it as a control or target line, either or
+ - try a hadamard transform
+
+let U be 1 qubit gate
+U|0> = |s>, U|1> = |t>
+in a controlled environment (mapping repr):
+  |00> => |00>
+  |01> => |01>
+  |10> => |1s>
+  |11> => |1t>
+matrix repr:
+  [[I 0]
+   [0 U]]
+
+--------------------------------------------------------------------------------
+New things
+  more controlled gate examples
+  rotations on a bloch sphere
+
+----------------------------------------
+Controlled-Z
+
+Z = [[1 0]
+     [0 -1]]
+
+start with a circuit
+PAGE 5, LECTURE 7, FIGURE 1: circuit
+
+mapping:
+  |00> => |00>
+  |01> => |01>
+  |10> => |1>Z|0>
+  |11> => |1>Z|1>
+|ij> => |i> Z^j |j>
+but:
+  Z|0> = |0>
+  Z|1> = -|1>
+  Z|j> = (-1)^j|j>
+so:
+  |ij> => |i> (-1)^(i \cdot j) |j>
+
+huh, so the operation is symmetric: target and control are switchable,
+  just because of that multiplication
+
+----------------------------------------
+SWAP gate
+
+|ij> => |ji>
+
+PAGE 5, LECTURE 7, FIGURE 2: circuit of SWAP gate, using CNOTs
+
+let's do a table first, of all the CNOTs
+|00> => |00> => |00> => |00>
+|01> => |01> => |11> => |10>
+|10> => |11> => |01> => |01>
+|11> => |10> => |10> => |11>
+
+table checks out!
+
+matrix?
+[[1 0 0 0]
+ [0 0 1 0]
+ [0 1 0 0]
+ [0 0 0 1]]
+= [[1 0 0]
+   [0 X 0]
+   [0 0 1]] !!!
+
+rotating the matrix?
+try apply H in the normal-inverted-normal
+
+example:
+  |y> = a|0>+b|1>
+  |z> = c|0>+d|1>
+  apply swap gate to |y>|z> = ac|00> + ad|01> + bc|10> + bd|11>
+  = ac|00> + ad|10> + bc|01> + bd|11>
+  = a(c|0> + d|1>)|0> + b(c|0> + d|1>)|1>
+  = |z>|y>
+
+----------------------------------------
+Not an S gate
+
+sin matrix:
+S = \sqrt{2/5} (sin(jk\pi/5)) // j,k=1..4; 4x4 matrix
+
+cool matrix
+decompose S into P_i matricies
+
+not entirely sure what's going on
+
+
+--------------------------------------------------------------------------------
+Shift gears: implementation of single q gates U and Ctl-U
+  rotations on a bloch sphere
+
+remember:
+X = [[0,1]
+     [1,0]]
+Y = [[0, -i]
+     [i, 0]]
+Z = [[1,0]
+     [0,-1]]
+
+R_x(\theta) = e^(-i\theta X/2)= cos(\theta/2)I - i sin(\theta/2)X
+ = [[cos(\theta/2) -isin(\theta/2)]
+    [isin(\theta/2) cos(\theta/2)]]
+
+R_y(\theta) = e^(-i\theta Y/2)= cos(\theta/2)I - i sin(\theta/2)Y
+ = [[cos(\theta/2) -sin(\theta/2)]
+    [sin(\theta/2) cos(\theta/2)]]
+
+R_z(\theta) = e^(-i\theta Z/2)= cos(\theta/2)I - i sin(\theta/2)Z
+ = [[cos(\theta/2) - isin(\theta/2) 0                             ]
+    [0                              cos(\theta/2) + isin(\theta/2)]]
+ = [[e^(-i\theta/2) 0            ]
+    [0              e^(i\theta/2)]]
+
+Note: All rotations counterclockwise
+
+[[e^ia 0]
+ [0    e^ib]]
+= e^(i(a+b)/2) [[e^(i(a-b)/2) 0]
+                [0            e^(i(b-a)/2)]]
+global phase: e^(i(a+b)/2)
+R_Z(b-a) // rotation around Z
+
+PAGE 5, LECTURE 7, FIGURE 3: illustrating rotation R_X(\theta)
+|y> = cos(\theta_1/2)|0> + e^(i\phi)sin(\theta_1/2)|1>
+
+|y~> = cos(\theta_1/2)|0> + e^(i\pi/2)sin(\theta_1/2)|1>
+
+\theta_2 = \theta_1 - \theta_R (rotation)
+
+|y~~> = cos(\theta_2/2)|0> + e^(i\phi)sin(\theta_2/2)|1>
+
+matrix to trasform |y~> to |y~~>? ?
+A = [[a b][c d]]
+A|y~> = |y~~>
+ = [cos(t1/2)cos(t/2) + sin(t1/2)sin(t/2),
+    i(sin(t1/2)cos(t/2) - cos(t1/2)sin(t/2))]^t
+ = [a cos(t1/2) + ib sin(t1/2), c cos(t1/2) + id sin(t1/2)]^t
+ a = cos(t/2)
+ b = -i\sin(t/2)
+ c = -i\sin(t/2)
+ d = cos(t/2)
+hey! this fits R_x!
+
+what about R_Z? take a qubit on "the equator"
+  |y~>  = (|0> + e^(i\phi)|1>)/\sqrt{2}
+  |y~~> = (|0> + e^(i(\phi+\theta))|1>)/\sqrt{2}
+again, looking for the matrix
+  A|y~> = |y~~>
+  c/\sqrt{2} + d\cdot e^(i\phi)/\sqrt{2} = e^(i(\phi+\theta))/\sqrt{2}
+  a = 1
+  b = 0
+  c = 0
+  d = e^(i\theta)
+  A = e^(i\theta/2) [[e^(-i\theta/2), 0], [0, e^(i\theta/2)]]
+
+and end class
