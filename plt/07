@@ -1,0 +1,179 @@
+PLT
+2012/02/08
+#07
+================================================================================
+
+got into class late
+
+outline:
+ - CFG
+ - YACC
+ - non-CF constructs
+ - top-down parsing
+ - transformations on grammars
+
+--------------------------------------------------------------------------------
+CFGs
+
+1. all strings of balances parens
+G: S -> (S) S|\epsilon
+L(G) = BP
+L(G) \subset BP
+if S =>^n w, then w is in BP
+BP \subset L(G), then L(G) = BP
+if w is in BP and |w| = n, then
+  S =>* w
+Proof by induction:
+  Basis
+    n = 0
+    |w| = n+1
+    w = (x) y
+    S => (S)S
+      =>* (x)S
+      =>* (x)y
+
+2. palindrome language
+G: S-> aSa|bSb|\epsilon
+L(G) = ELP // not sure what this means
+
+3.
+G: S -> aSb|bSa|SS|\epsilon
+L(G) = {w| w string with #a = #b}
+  this is not unambiguous, due to S->SS
+  either S(SS) or (SS)S
+  exercise: write an unambiguous grammar for this
+
+----------------------------------------
+Programming language constructs
+stmt -> if(expr) stmt
+        | if(expr) stmt else stmt
+        | while(expr) stmt
+        | for(optexpr; optexpr; optexpr) stmt
+optexpr -> expr | \epsilon
+           | optexpr;
+
+easy, yeah?
+  start out small, add more productions
+  don't debug a huge mess of productions right away
+
+--------------------------------------------------------------------------------
+YACC
+
+story time!
+
+Yacc specification into YACC, outputs a parser
+
+yacc scaffolding
+----------------------------------------
+declarations
+%%
+translation rules
+%%
+supporting C-routines
+----------------------------------------
+
+30 lines to a desktop calculator
+
+yacc program, fragment #1
+----------------------------------------
+expr: expr '+' expr
+      | expr '*' expr
+      | '(' expr ')'
+      | NUMBER
+      ;
+----------------------------------------
+
+terminal symbol? put it in single quotes
+
+let's make it interactive
+
+yacc program, fragment #2
+----------------------------------------
+expr: expr '+' expr     {$$ = $1 + $3;} /* $$ is final value */
+      | expr '*' expr   {$$ = $1 * $3;}
+      | '(' expr ')'    {$$ = $2;}
+      | NUMBER          /* no action, pass it through */
+      ;
+----------------------------------------
+
+but we want multi-line inputs
+
+yacc program, fragment #3
+----------------------------------------
+lines: lines expr '\n' { printf("%g\n", $2); } /* %g for both ints/floats */
+       | lines '\n'    /* no semantic action, leave empty */
+       |               /* empty/epsilon, no semantic action */
+       ;
+----------------------------------------
+
+so far, we've been defining translation rules. we need some declarations
+
+yacc program, fragment #4
+----------------------------------------
+%{ 
+#include <ctypes.h>
+#include <stdio.h>
+#include YYSTYPE double /* default yacc type? */
+%}
+
+%token NUMBER
+/* precedence of operator */
+%left '+' /* without this, grammar is ambiguous; makes it easier to define */
+%left '*'
+----------------------------------------
+
+yacc LAR parser, keeps translation rules on a stack
+  (not sure why I wrote this down)
+
+yacc program, fragment #5 (copied from lecture notes)
+----------------------------------------
+/* the lexical analyzer; returns <token-name, yylval> */
+int yylex() {
+  int c;
+  while ((c = getchar()) == ' ');
+  if ((c == '.') || (isdigit(c))) {
+    ungetc(c, stdin);
+    scanf("%lf", &yylval);
+    return NUMBER;
+  }
+  return c;
+}
+----------------------------------------
+
+going over how to run yacc
+  huh, yacc for python?
+
+walk the syntax tree to get an idea of what's going on?
+
+if it passes YACC, then grammar is unambiguous
+
+--------------------------------------------------------------------------------
+noncontext-free constructs
+
+a^n b^n c^n // not CF, use pumping lemma for CF langs
+wcw // can be spec'd by CFG
+can't spec that a var needs to be specified before being used in CFG,
+  need symbol table
+
+--------------------------------------------------------------------------------
+Top-Down Parsing
+polish notation:
+  S-> +ss|*ss|a
+  how do we construct parse tree for "+a*aa" ?
+
+// each nested () are children in the tree
+// because first char is +
+S -> (+ S S)
+// next char is a
+S -> (+ a S)
+// next char is *
+S -> (+ a (* S S))
+// next chars are a's
+S -> (+ a (* a a))
+  leaves are "+a*aa"
+  reconstucts the leftmost derivation
+
+LL(1)
+Predictive Parse Table
+
+and end before the lecture notes
