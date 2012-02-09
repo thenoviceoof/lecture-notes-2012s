@@ -1,0 +1,49 @@
+Embedded Systems
+Lectures #6
+2012/02/09
+================================================================================
+
+Lab #2 out, should be all set up
+
+Talking about PS/2
+  yup, PS/2 is obsolete, but w/e
+  lol, keyboard part of the computer
+  ha, 10A through each pin?? (older connector, DIN-5)
+  DIN is a german standard
+
+PS/2 is synch interface (like RS-232, but w/ a clock??)
+  oh, this format looks familiar
+  interface is completely random, wth?
+  probably can ignore key-up messages
+  note extended code stuff for arrow keys
+    6B -> E06B (keypad -> arrow keys)
+
+mouse?
+  computer has to init comms with PS/2 mouse
+  sounds kind of like I2C, except not really
+  for host->keyboard [LED control, echo, ... etc]
+  back to mouse - enable data reporting (0xF4), get 3 byte "packets" back
+
+--------------------------------------------------------------------------------
+talking about C stuff
+
+software tends to stick around much longer than intended/wanted
+
+talking about low-level C desiderata
+
+PREMATURE OPTIMIZATION IS THE ROOT OF ALL EVIL
+
+talking about floating point in software/hardware
+avoid division, pretty much avoid everything
+do bit-manipulation instead!
+
+rightmost 1 bit? fancy bit manip
+ b = a & (a ^ (a-1));
+ can't do it leftmost, relies on carrying pattern from subtraction
+
+and now showing how to do popcount (count 1's in a bit array)
+
+if multiplying by constant, then can go faster (+/<<)
+  new: try subtraction, if that gets you fewer additions
+
+stopping here
