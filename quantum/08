@@ -1,0 +1,171 @@
+Quantum Computing
+lecture #8
+2012/02/09
+================================================================================
+
+really hoping this isn't a quiz.
+okay, seems like it's just the gate from lecture 6
+
+--------------------------------------------------------------------------------
+Reviewing rotations
+
+R_x(\theta) = e^(-i\theta X/2)= cos(\theta/2)I - i sin(\theta/2)X
+ = [[cos(\theta/2) -isin(\theta/2)]
+    [isin(\theta/2) cos(\theta/2)]]
+
+... (see lecture #7 for R_y, R_z)
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Random attempt to get EC
+
+X
+0 1
+1 0
+
+H 1/sqrt{2}
+1 1
+1 -1
+
+1
+  1
+      1
+    1
+-
+  1
+1
+       1
+    1
+-
+
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+
+--------------------------------------------------------------------------------
+Today:
+
+Theorem:
+  Given A: A^2 = I
+  then: e^{i x A} = cos(x) I + i sin(x) A, x\in R
+Proof:
+  Do a power series expansion, plug in the function+matrix
+  e^{ixA} = \Sigma_{k=0}^\infty (ixA)^k/k!  // from power series
+    // spilt up the even/odd terms;  remember, A^2 = I
+  = \Sigma_odd (ixA)^k/k! + \Sigma_even (ix)^k/k! I
+  = \Sigma_k (ix)^{2k+1}/(2k+1)! A + \Sigma_k (ix)^(2k)/(2k)! I
+  = iA \Sigma_k i^(2k) x^{2k+1}/(2k+1)! + \Sigma_k (ix)^(2k)/(2k)! I
+    // here, he pulls out the identity: I did it much earlier
+  = iA \Sigma_k (-1)^k x^{2k+1}/(2k+1)! + \Sigma_k (-1)^k x^(2k)/(2k)! I
+  = iA sin(x) + cos(x) I
+  PROFIT
+
+can we use this theorem in the homework?
+  no, \alpha is complex
+  but we could split it up
+
+Okay, let's do another theorem!
+
+----------------------------------------
+about the single qubit gates
+ - note: whatever 1-qubit gate you can do, can decompose into R_X/R_Y/R_Z
+Theorem:
+  any 1-qubit gate U can be expressed as:
+  U = e^(i\alpha) R_Z(\beta) R_Y(\gamma) R_Z(\delta)
+    // Z-Y repr (ZYZ)
+Proof:
+  // constructive proof
+  U = [[x_11 e^(i\phi_11), x_12 e^(i\phi_12)]
+       [x_21 e^(i\phi_21), x_22 e^(i\phi_22)]]
+    // where row and col vectors are len = 1
+    // and, cols ortho
+  = [[x_11, x_12][x_21 e^(i(\phi_21-\phi_11)), x_22 e^(i(\phi_22-\phi_12))]]
+    [[e^(i\phi_11), 0][0, e^(i\phi_12)]]
+  = [[1 0][0 e^(i(\phi_21-\phi_11))]]
+    [[x_11, x_12][x_21, x_22 e^(i(\phi_22-\phi_12 + \phi_21-\phi_11))]]
+    [[e^(i\phi_11), 0][0, e^(i\phi_12)]]
+// wait, and we're nearly done?? what?
+
+// oh, you pull "balanced" phases
+  = e^(i(\phi_21-\phi_11)/2) [[e^(i(\phi_11-\phi_21)/2) 0]
+                              [0 e^(i(\phi_21-\phi_11)/2)]]
+    [[x_11, x_12][x_21, x_22 e^(i(\phi_22-\phi_12 + \phi_21-\phi_11))]]
+    e^(i(\phi_11+\phi_12)/2) [[e^(i(\phi_11-\phi_12)/2), 0]
+                              [0, e^(i(\phi_12-\phi_11)/2)]]
+
+// and this middle one is pretty hairy
+  let \phi = \phi_22-\phi_12 + \phi_21-\phi_11
+  = e^(i(\phi_21+\phi_12)/2)
+    R_Z(\phi_21-\phi_11)
+    [[x_11, x_12][x_21, x_22 e^(i\phi)]]
+    R_Z(\phi_12-\phi_11)
+// now, we distinguish cases
+cond [[x_11, x_12][x_21, x_22 e^(i\phi)]]:
+  x_11 == 0:
+    x_21^2 = x_12^2 = 1, x_22 = 0
+    same sign x_21, x_12, then
+      X = [[0 1][1 0]] Z = R_Y(\pi) e^(i\pi/2) R_Z(\pi)
+    different sign x_21, x_12, then
+      X = \pm [[0 -1][1 0]] Z = \pm R_Y(\pi)
+  x_21 != 0:
+    x_11^2 = x_22^2 = 1, x_12 = 0
+    [[x_11, 0][0, x_22 e^(i\phi)]]
+    = [[x_11 0][0 x_22]] [[1 0][0 e^i\phi]]
+    = [[x_11 0][0 x_22]] e^(i\phi/2) R_Z(\phi)
+    same sign x_11, x_22, then
+      = \pm I e^(i\phi/2) R_Z(\phi)
+    different?
+      = \pm Z e^(i\phi/2) R_Z(\phi)
+      = \pm e^(i\pi/2) R_Z(\pi) e^(i\phi/2) R_Z(\phi)
+  x_ij != 0:
+    remember: unitary
+    that means det([[x_11, x_12][x_21, x_22 e^(i\phi)]]) = 0, 
+    must be real (???), so \phi = i\pi where i\in N (ints)
+    e^(i\phi) = \pm 1
+    [[a (\pm b)][b (\pm a)]]
+    MOAR CASES:
+      [[a b][b a]] - not ortho, not possible
+      [[a -b][b a]] - use R_Y, \theta = \sin^-1(b)
+      -[[a b][b -a]] - use R_Y, \theta = \sin^-1(-b)
+                       (or R_Y(-\theta), \theta = \sin^-1(b))
+      [[a b][b -a]] = [[a -b][b a]] [[1 0][0 -1]]
+      [[a -b][b -a]] - not ortho, not possible
+// WAIT WTF IS GOING ON
+// [[-a b][-b -a]] // keeps it's unitariness?
+
+TRY: problem to try:
+  try using X // apparently did it in the worked problems?
+  try using R_X(\pi/2) // constant case, above theorem is general case
+
+----------------------------------------
+Theorem:
+  U = e^(i\alpha) A X B X C  // matrix X, not mult
+  ABC = I
+  // maps to corollary 4.2 on page 176, maps to (R_Z R_Y, R_Y R_Z, R_Z(???))
+// think we're not going to work this
+
+implementation Ctl-U
+  U: 1-qubit gate
+controlled global phase, e^(ia)
+PAGE 7, LECTURE 8, FIGURE 1: draw out the circuit of Ctl-U
+Give the mapping:
+  00 -> 00
+  01 -> 01
+  10 -> 10 e^(ia)
+  11 -> 11 e^(ia)
+
+|kj> => e^(iak) |kj>
+PAGE 7, LECTURE 8, FIGURE 2: different way to do a circuit
+
+now that we control the global phase, how do we control everything else?
+
+jk, we're going to do something about the last stated theorem
+PAGE 7, LECTURE 8, FIGURE 3: wow, I don't know how this got here. wth?
+if i = 0
+  top qubit    |0>
+  bottom qubit ABC |j> = |j>
+if i = 1
+  top qubit    e^(ia) |1>  // from Ctl-U
+  bottom qubit A X B X C |j>
+
+oh holy fuck, finally figured out why I was so confused by X
