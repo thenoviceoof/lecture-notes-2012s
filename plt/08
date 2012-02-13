@@ -1,0 +1,97 @@
+PLT
+2012/02/13
+#08
+================================================================================
+
+got in 2 minutes late, doing a survey (Martin Questions)
+Bob Martin Questionnaire
+
+compiler should be 3k-5k LOC?
+
+error rate / 1000 LOC? 
+  10's of errors for 1k LOC?
+  back when Aho was in Bell, 1k errors/1mil LOC avg telecom?
+
+this is dumb, aho's using a rhetorical hammer
+
+oh, it's a guy doing a talk (Martin)
+
+welp
+
+oh, it's next monday, apparently
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+Predictive parsers
+----------------------------------------
+Top down parser (left->right)
+
+use a stack, and a bunch of production rules (predictive parser table):
+
+                        Input Symbol
+   Nonterminal    a        +          *        $
+
+       S        S → a    S → +SS    S → *SS
+
+to transform the top of the stack to new symbols
+if you match, then you just consume the character
+
+traces out a leftmost derivation for the input.
+
+--------------------------------------------------------------------------------
+Take a CFG, produce a preductive parser table
+
+CFG G = (N, T, P, S) // nonterm, term, productions, ... something
+
+Note: =>* is derives
+
+what are the set of terminal symbols that start strings in the lang?
+FIRST(\alpha) = { a | a in T where \alpha =>* a\beta for some \beta} \union
+                {\epsilon} if \alpha =>* \epsilon
+
+Algo to compute FIRST
+1. if X is in T, add X to FIRST(X)
+2. if X->\epsilon \in P, add \epsilon to FIRST(X)
+3. if X->\concat^k Y_i is in P for k\geq 1 and \concat^j-1 Y_i =>* \epsilon
+   where j \in [0,k], and a \in FIRST(Y_i) 
+   THEN
+   add a to FIRST(X)
+4. if X->\concat^k Y_i, \concat^k Y_i =>* \epsilon, then
+   add \epsilon to FIRST(X)
+
+FIRST(S) = {+, *, a}
+
+----------------------------------------
+FOLLOW(A), A \in N
+let a \in T
+FOLLOW(A) = {a | S =>* \alpha A a \beta} \union ( {$} if S =>* \alpha A)
+
+FOLLOW(S) = {$, +, *, a}
+
+Algo to compute FOLLOW
+repeat while FOLLOW changes
+1. add $ to FOLLOW(S)
+2. if A->\alpha B\beta is in P,
+   then add symbols in FIRST(\beta) -> FOLLOW(B)
+3. If A->\alpha B or A->\alpha B\beta and \epsilon \in FIRST(\beta)
+   then add symbols in FOLLOW(A) to FOLLOW(B)
+
+----------------------------------------
+algo to compute Predictive parser table (M) for grammar (G)
+
+for(each A->\alpha in P)
+    for(each a in FIRST(\alpha))
+        add A -> \alpha to M[A, a]
+    if \epsilon in FIRST(\alpha)
+        for(each b in FOLLOW(A))
+            add A -> \alpha to M[A, a]
+make each undefined entry in M be an error
+
+----------------------------------------
+PRACTICE: try making the PP table for
+E -> E + T | T
+T -> T * F | F
+F -> (E) | a
+
+multiple entries in a slot, learn later how to make it unique
+unique means unambiguous
