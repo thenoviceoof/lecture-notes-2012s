@@ -1,0 +1,182 @@
+Quantum Computing
+lecture #9
+2012/02/14
+================================================================================
+
+okay, handed in homework
+
+and hw #2 is out
+and quiz is happening class before hw #2 is due
+  15 minutes, don't do look ups (derp)
+  quote: if you want, for psychological reasons, bring a library
+         bring your pets too! I don't care
+// need to start batching through hw like none other...
+
+--------------------------------------------------------------------------------
+Review
+
+Theorem:
+  A^2 = I, then e^(i t A) = cos(t) I + i sin(t) A  // where t\in R
+Theorem:
+  U, 1-qubit gate
+  U = e^(i\alpha) R_Z(\beta) R_Y(\gamma) R_Z(\delta)  // matrix X, not mult
+  main reason is that the proof is constructive
+
+procedures of converting gates to sets of universal gates are very important
+
+example:
+take Y, how implement by rotations? (2nd theorem)
+Y = i[[0, -1][1 0]] = e^(i\pi/2) R_Y(\pi)
+remember:
+ R_x(\theta) = e^(-i\theta X/2)= cos(\theta/2)I - i sin(\theta/2)X
+ = [[cos(\theta/2) -isin(\theta/2)]
+    [isin(\theta/2) cos(\theta/2)]]
+ ... (see lecture #7 for R_Y, R_Z)
+
+TRY to IMPLEMENT at home:
+  X, R_X(\pi/2), R_X(-\pi/2)
+2nd one is in the worked examples, don't be dumb about it though
+
+Theorem:
+  U = e^(i\alpha) A X B X C  // matrix X, not mult
+  remember, X is a NOT gate
+  ABC = I
+making Ctl-U again
+  see
+PAGE 7, LECTURE 8, FIGURE 3: for a circuit repr of U
+
+--------------------------------------------------------------------------------
+outline
+  back to controlled gates
+
+--------------------------------------------------------------------------------
+Controlled gates
+  |i>|j> => |i> U^i|j> // {i: ctl, j: target}, i,j \in {0,1}
+
+now, multiple qubits
+  |i/n>|j/k>  // personal notation, n qubits in i, k qubits in j
+  |i> = |i_n-1 ... i_0>  // same for j
+  |i>|j> => Ctl-U => |i> U^(\Product_a i_a)|j>
+  only takes effect if we and all the bits together
+example:
+  |111>|010> => |111> U|010>
+  |101>|010> => |101> |010>
+PAGE 7, LECTURE 9, FIGURE 1: circuit drawing of this Ctl-U gate
+
+digression: talking about shorthands
+  |i>|j> => H => |i> H|j>
+  actually
+  |i>|j> => I\tensor H => |i> H|j>
+  but tis a shorthand
+
+Matrix of C^n(U) Ctl-U
+  size: 2^(n+k), 2^(n+k)
+  go to column where |1...1>|0...0>
+  it's the (2^n-1)2^k column, same for row
+    of row or column is below that number, I
+    if row xor column is below that number, 0 matrix
+    then, the last quadrant is U
+PAGE 7, LECTURE 9, FIGURE 2: drawing the matrix for Ctl-U
+
+C^n(U) is unitary
+  just go work it out, use the subarray notation
+
+--------------------------------------------------------------------------------
+Toffoli Gate, n=2, k=1, U=X
+PAGE 7, LECTURE 9, FIGURE 3: drawing of the toffali gate
+  size: 8x8,  identity is size 4x4
+  |i>|j>|k> => |i>|j> X^(ij)|k> = |i>|j>|k \xor ij>
+  if i, j = 1
+     X|k> = |k \xor 1>
+  quote: they're screaming they're not doing anything! (|ij>)
+
+so why is the Tofali important?
+  remember the NAND gate?
+  we can implement a NAND gate on |ij> with toffali gate
+  |ij1> => |ij>|1\xor ij> = |ij>|nand(i,j)>
+  HO SHIT WE HAVE EVERYTHING
+
+TRY IMPLEMENT NOR gate at home
+
+talking about fanout, copying bits
+  feed |1j0> => |j>
+  HOLYYYYYYYYY FUCK
+
+at least as powerful as classical circuits
+  can simulate classical circuits
+  well, reliability of these quantum circuits is being worked on
+  also, implementation of gates in various mediums is variable
+
+--------------------------------------------------------------------------------
+Implementing C^2(U) for U = V^2, U 1-qubit gate
+  using, V, V^H, and CNOT
+  proof will be constructive
+PAGE 7, LECTURE 9, FIGURE 4: drawing this circuit
+  going to convey the meaning, not all the details
+
+  |ijk> ->Ctl-V-> |ij> V^j|k> ->CNOT-> |i>|i\xor j> V^j|k>
+  ->Ctl-V^H-> |i>|i\xor j> V^H(i\xor j)V^j|k>
+  ->CNOT-> |i>|j> V^H(i\xor j)V^j|k>   // remember i\xor j\xor i = j
+  ->Ctl-V-> |i>|j> V^i V^H(i\xor j)V^j|k>
+
+  okay, so we have that, but is it correct? (applied V^2)
+
+  break it up into cases
+1. i\xor j = 1
+  i,j = (0,1) or (1,0)
+  V^i V^H V^j |k> = V^i V^H |k> or V^H V^j |k> = I|k> = |k>
+2. i\xor j= 0
+  i,j = (0,0) or (1,1)
+  V^i V^j |k> = (i=1 ? V^2|k> : |k>  // c notation
+
+  hence, |ijk> => |ij> (V^2)^(ij) |k>
+  which fits the |ijk> => |ij> U^(ij)|k> pattern
+
+NOTE: V is guarunteed to be unitary, 1-qubit gate
+also, V is arbitrary
+
+Now, we implement a Toffoli gate using C^2(V^2)
+  set V = ((1-i)/2)(I+iX)
+  V^2 = (1-2i-1)/4 (I + iX + iX + i^2 X^2) = X
+Then, C^2(X), we get a Toffoli gate!
+wait, there's more!
+  V = (1-i)/\sqrt{2} (I + iX)/\sqrt{2}
+    = e^(-i\pi/4) R_X(-\pi/2)
+Note: getting V^H is easy, with rotations
+  just flip the rotation, conjugate the constant
+BAM it's a universal gate
+  pages that show implementation of R_X
+    problem set #3, with gates X, Y
+    book, pg. 182 with H,S,T,CNOT
+    book, pg. 177 ex. 4.14 with HTH = R_X(\pi/4)
+
+--------------------------------------------------------------------------------
+copying - quantum computers do not do this very well
+
+no cloning theorem
+  page 532
+  You have |\psi>, want |\psi>|\psi>
+  can we do it w/ a quantum algo (unitary transform)?
+  |\psi>|S> -> |\psi>|\psi> forall |\psi> \in C^2
+  NOPE CAN'T DO IT
+  NOTE: we can clone certain states, like 0/1, but not forall (arbitrary)
+  quote: we have 1 minute... the proof is very simple. one liner.
+
+proof:
+  Assume
+  U|\psi_1>|S> = |\psi_1>|\psi_1>
+  U|\psi_2>|S> = |\psi_2>|\psi_2>
+
+  Take the dot product of each side
+  LHS:
+  <\psi_2|<S| U^H U |\psi_1>|S> = <\psi_1|\psi_2><S|S> = <\psi_1|\psi_2>
+  RHS:
+  <\psi_2|<\psi_1|\psi_1>|\psi_2> = <\psi_2|\psi_1><\psi_2|psi_1> =
+    (<\psi_2|psi_1>)^2
+  then <\psi_2|\psi_1> = (<\psi_2|psi_1>)^2
+
+  but this is not generally true
+  ex. ortho or parallel \psi states, then the product holds
+    but anything else quickly fails
+
+teleportation clones, but destroys the first state (copied)
