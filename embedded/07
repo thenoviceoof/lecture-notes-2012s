@@ -1,0 +1,24 @@
+Embedded Systems
+Lectures #7
+2012/02/14
+================================================================================
+came in 30 minutes late
+
+talking about doing dynamic memory allocation
+  it's like we're back in OS all over again!
+  endorsing the simple linked list
+
+seems like we talked about various math optimizations/array accesses
+
+allocation/deallocation is pretty volatile in time
+
+huh, talking about memory-mapped I/O
+ - it does whatever it wants
+ - example, reading memory mapping of switches, feeding them to LED memory
+ - Note: volatile keyword skips the cache, good for memory-mapped stuff
+
+talking about interrupts
+  lalalala
+
+talking about debugging
+  UR A N00B
