@@ -1,0 +1,149 @@
+PLT
+2012/02/15
+#09
+================================================================================
+
+talking about homework and language whitepaper OH GOD WHY
+
+Oh, dr. robert martin
+welp
+if you made a phone call, you used his tech
+
+Outline
+ - LL(1) grammars
+ - eliminate left recursion
+ - left factoring
+ - bottom-up parsing
+
+--------------------------------------------------------------------------------
+LL(1) grammar
+G is LL(1) iff when (A -> \alpha|\beta) \in P (distinct productions), then
+ 1) FIRST(\alpha) and FIRST(\beta) are disjoint
+ 2) at most 1 of \alpha and \beta can derive \Sigma
+ 3) if \alpha =>* \epsilon, then FIRST(\alpha) and FOLLOW(\alpha) are disjoint
+
+technically, 2 is included in 1, but state for clarity
+
+--------------------------------------------------------------------------------
+Eliminating left recursion
+
+example: our language from last lecture
+  E -> E + T | T
+  T -> T * F | F
+  F -> (E) | a
+is left-recursive, since a leads to either E->E+T or E->T
+
+solution: add in pre-productions
+  A -> A\alpha|\beta
+goes to
+  A -> \beta A'
+  A' -> \alpha A' | \epsilon
+this way, the parse tree leads off to the right, not the left
+and yes, these are equivalent
+PAGE 4, FIGURE 1: illustration of the parse trees for \beta\alpha\alpha
+
+fixing our example:
+  E -> E + T | T
+  T -> T * F | F
+  F -> (E) | a
+and now with pre-productions
+  E -> T E'
+  E' -> + T E' | \epsilon
+  T -> F T'
+  T' -> * F T' | \epsilon
+  F -> (E) | a
+PAGE 6, FIGURE 2: illustration of the parse tree for a+a*a
+
+--------------------------------------------------------------------------------
+Left Factoring
+
+S -> ab|ac
+we have a common prefix (a), and this means that we can factor that out
+S -> a S'
+S' -> b | c
+
+another example:
+  STMT -> if EXPR then STMT else STMT | if EXPR then STMT | a
+okay, we can factor out the if
+
+but wait! it's in fact ambiguous!
+if EXPR then if EXPR then STMT else STMT
+this:
+  if EXPR then (if EXPR then STMT) else STMT
+or this?
+  if EXPR then (if EXPR then STMT else STMT)
+
+Note: this is an example with dangling else; associates with the closest if
+      otherwise, things are confusing (har)
+
+left factoring:
+  STMT -> if EXPR then STMT STMT' | a
+  STMT' -> else STMT | \epsilon
+
+--------------------------------------------------------------------------------
+Bottom-up parsing
+// LR(1) parsing
+ - instead of a leftmost derivation, we go with the rightmost, in reverse
+
+example:
+  S -> S(S) | \epsilon
+generates any string with balanced parens
+using a right-most derivation of ()():
+  S -> S(S)
+       S()
+       S(S)()
+       S()()
+       ()()
+and now aho constructs a parse tree of the above derivation
+
+oh, talking about shift-reduce parsing
+  starting with $ on the stack
+  we shift terminals onto the stack until it matches a nonterm
+  and then we reduce the terminals down to the nonterm
+example:
+  ()()
+PAGE 6, FIGURE 3: showing the shift-reduce derivation of ()()
+simulating a right-most derivation... in reverse
+
+OMG AHO HAS HUGE CHALK CHURUNEDSNOCBKSNOCHUNSOCH
+
+----------------------------------------
+Simple LR(1) parser construction example
+  S' -> S
+  S -> S(S)
+  S -> \epsilon
+
+we contain the state of the parser using . (?)
+I_0.
+  S' -> .S
+  S -> .S(S)
+  S -> .\epsilon
+
+Oh god I don't pay attention for 2 minutes and I get ridiculously lost
+
+I_1.
+  S' -> S.
+  S -> S.(S)
+
+I_2.
+  S -> S(.S)
+  S -> .S(S)
+  S -> .
+
+somehow, we're moving between I_i with closures and gotos
+
+I_3.
+  S -> S(S.)
+  S -> S.(S)
+
+I_4.
+  S -> S(S).
+
+and we work through it until we get the dot at the end?
+
+oh fuck I'm wicked lost
+
+it's a DFA, recognizing viable prefixes
+canonical FSM, for the LR parser
+
+and we're done
