@@ -1,0 +1,56 @@
+Embedded Systems
+Lectures #8
+2012/02/16
+================================================================================
+Got here early (wth)
+
+Talking about Software/Hardware interface
+
+processor linked to address/data busses
+  DE2 world: called the Avalon bus
+  bunch of different busses for different things
+
+Bus timings:
+  R/W
+  Enable (when addr is good)
+  Addr
+  Data (read, or write)
+
+strobe vs. handshake
+strobe
+  ping, ack is data
+handshake
+  send ack when you've read the data
+
+quote: she was, in many ways, a protocol failure
+
+talking about the ISA bus
+ - somehow got standardized
+ - various signal names
+   BALE - address latch enable
+   MEMR - memory read
+   IOCHRDY - I/O channel ready
+ - and you can get ISA boards!
+
+reviewing memory-mapped I/O
+
+also, lab 3 is going to be coding a processor (?) on the bare metal
+
+PC parallel port
+ - derp
+ - have a parallel port? still have the 3 bytes of memory linked
+ - oh, and we coded it
+   looking at a card's schematics
+
+oh, it's just video controller or FM audio for lab #3
+
+talking about interrupts
+ - la la la
+ - also, prioritize the interrupts (if 2 at the same time)
+
+--------------------------------------------------------------------------------
+Video
+
+talking about how CRTs work
+
+I admit, my notes are useless. derp
