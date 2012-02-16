@@ -1,0 +1,138 @@
+Quantum Computing
+lecture #10
+2012/02/16
+================================================================================
+
+Review
+--------------------------------------------------------------------------------
+Multiply controlled gates
+  C^n(u)  // n ctrl qubits
+
+C^2(U)  // implementation
+
+Toffoli Gate C^2(X)
+  gave us power to implement classical gates
+  (NAND, Fan out), NOR, AND  // just need (NAND, Fan out)
+
+No cloning theorem
+  no copying arbitrary quantum states (w/ unitary transform)  // BIG NO NO
+  can copy certain orthogonal states (remember toffali gate w/ NAND)
+
+TRY SOLVE PROBLEM:
+  Derive a quantum circuit that on input
+  |\psi>|0> -> U -> |\psi>|\psi>
+  for \psi \in {|+>, |->}
+  special cloning case
+  remember the limitation derived in the no-cloning theorem
+  can expand to many ortho states (yay!)
+
+--------------------------------------------------------------------------------
+Today
+  going to talk more about measurements
+
+ha, jk!
+
+--------------------------------------------------------------------------------
+implementation of C^n(U), U for 1 qubit
+  |i_1..i_m>|j> -> C^n(U) -> |i_1..i_m>U^(\Prod_k i_k)|j>
+
+how do we do the adding? adding gate?
+use toffali gates
+
+example, n=3:
+PAGE 8, FIGURE 1: circuit for C^3(U)
+  uses a few |0> temp qubits
+  why don't we just CNOT everything in one fell swoop?
+    we need to spell it out: that's where the complexity is
+  oh god he's tracing the execution through
+  |i_1>|i_2>|i_3>|0>|0>|j> -> Tof
+  |i_1>|i_2>|i_3>|i_1 i_2>|0>|j> -> Tof
+  |i_1>|i_2>|i_3>|i_1 i_2>|i_1 i_2 i_3>|j> -> Ctl-U
+  |i_1>|i_2>|i_3>|i_1 i_2>|i_1 i_2 i_3> U^(i_1 i_2 i_3)|j> -> Tof
+  |i_1>|i_2>|i_3>|i_1 i_2>|0> U^(i_1 i_2 i_3)|j> -> Tof
+  |i_1>|i_2>|i_3>|0>|0> U^(i_1 i_2 i_3)|j> -> Tof
+  why do we undo the |0>|0> overwrites?
+    just a scratchpad, I guess it's common courtesy to non-overwrite
+
+--------------------------------------------------------------------------------
+# thought we were getting around to this... never did
+Okay, so how do we get C^n(U) for arbitrary n?
+
+--------------------------------------------------------------------------------
+opposite idea: 1 qubit controlling many things
+  |c>|t_1..t_n> -> U (1 qubit, Q_U) -> |c> (for_i U^c|t_i>)
+  or
+  -> |c> (U^(\tensor n))^c |t_1..t_n>
+    where c, t_i \in {0,1}
+example:
+  let U = X, Q_X be the operator
+  Q_X|c>|t_1..t_n> = |c>(|c\xor t_1> .. |c\xor t_n>)
+  circuit?
+PAGE 8, FIGURE 2: circuit of this 1-qubit
+  Q_X = ?
+  size(Q_X) = 2^(n+1), 2^(n+1)
+PAGE 8, FIGURE 2: Q_X, properties of
+  what's this look like?
+  I, and X^(\tensor n)!!  // WHAT THE FUCKKKKKKKKKKKK
+  example:
+    X = X
+    X\tensor X = X_(4,4)  // X, but size (4,4)
+  What if it's Q_U?
+    replace X^(\tensor n) with U^(\tensor n)
+    HOLY FUCK
+    Q_U = [[I_(2^n,2^n), 0_(2^n,2^n)], [0_(2^n,2^n), U^(\tensor n)]]
+
+Problem:
+  we have a matrix, but it doesn't decompose into gates we've seen
+--------------------------------------------------------------------------------
+Two Level Gates
+
+  unitary matrices acting nontrivially on at most two components of a
+    state/vector
+
+  Q = U_1 .. U_N
+    how many N?
+  desired decomposition similar to QR/whatever other decompositions
+    example: QR decomposition (into upper triangle, or diagonal?)
+    A = QR
+
+Example: n = 3
+PAGE 9, FIGURE 4: Trying to decompose U (?)
+  oh crap I don't know what we're doing anymore
+  (?) U_1 U = 
+PAGE 9, FIGURE 5: Trying to decompose U_1 U (?)
+  well, U_2 U_1 U must be unitary (cols/rows ortho)
+    hence, |a_1''| = 1 -> |b_1''| = |c_1''| = 0
+PAGE 9, FIGURE 6: Trying to decompose U_2 U_1 U
+  and we end up with a diagonal matrix!
+  put it into another form:
+U_3 U_2 U_1 U = 
+[[e^(i\phi_11)  0            0           ]
+ [0             e^(i\phi_22) 0           ]
+ [0             0            e^(i\phi_33)]]
+
+or U = U_1 U_2 U_3 (U_3 U_2 U_1 U)
+
+cost in terms of matrix size? (d)
+  O(d^2)
+usually, you want something much less than that
+  ex. if d = 2^n, cost O(2^(2n)), not polynomial
+
+--------------------------------------------------------------------------------
+Universal Quantum Gates
+ - Any unitary operator can be decomposed/implemented using
+   single qubit rotations
+ - Any unitary operator can be decomposed to arbitrary accuracy using
+   H,S,T,CNOT gates
+
+--------------------------------------------------------------------------------
+Measurement (chapter 2)
+formally state today, talk more about tomorrow
+ - A measurement happens with regard to a collection of matrices called
+   measurement operators { M; j \in {0..k-1}, \sum M^H M = I (completeness rel)}
+ - On input |\psi>, output j \w prob p(j) = <\psi| M_j^H M_j |\psi>
+   and |\psi> collapses to M_j|\psi> / \sqrt{p(j)}
+ - p(j) = || M|\psi> ||^2
+   so
+   M_j|\psi> / \sqrt{p(j)} = M_j|\psi> / || M_j|\psi> ||
+   so it's a unit vector! (yay)
