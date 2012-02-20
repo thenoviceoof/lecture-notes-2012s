@@ -1,0 +1,58 @@
+PLT
+2012/02/20
+#10
+================================================================================
+
+Think about what problems you want to solve, maybe include in whitepaper
+
+Talk: "there is no magic" by Bob martin
+
+--------------------------------------------------------------------------------
+
+Aho talks about the history of Bob.
+
+ha, throwing out a bunch of statistics (fake?)
+
+I'm not sure about the assertation that programmers are high-ego
+loners: maybe not in the future/this is changing?
+
+I realize I don't know jack shit abotu testing/programming best
+practices. I should read code complete
+
+Watts Humphrey software engineering model - check this out later
+
+look into these books ref'd by Bob
+ - Lion's Commentary on Unix
+ - The Practice of Programming; Kernighan & Pike
+
+----------------------------------------
+why are we doing this ass-backwards? why is the whitepaper first? derp
+----------------------------------------
+
+MOAR reading - on architecture
+ - An Architecture History of the Unix System - Feldman, '84
+ - A Model of Large Systems Development - Belady & Lehman, '76
+
+And now he's talking about doing Fermi calculations
+ - huh, he's claiming 20% accuracy
+
+lolololol LOC
+ - he's talking about how established teams put out constant LOC
+
+--------------------------------------------------------------------------------
+ideas:
+ - requirements, design, code, test test test
+ - incremental?
+ - reviews
+
+this seems like a very waterfall... wait, nvm. jk
+
+metric driven improvement
+ - seems like it requires defect tracking
+
+PERT chart, Gantt?
+
+weekly meeting? biweekly (fortnightly?)?
+
+design templates?
+
