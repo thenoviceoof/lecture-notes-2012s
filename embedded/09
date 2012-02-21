@@ -1,0 +1,15 @@
+Embedded Systems
+Lectures #9
+2012/02/21
+================================================================================
+
+Got here super late (30 min)
+
+talking about how VGA works
+
+talking about hsync, vsync
+
+now, talking about communication bus
+ - communication fabric (bus/pci on a chip)
+
+looking at memory-mapped interface
