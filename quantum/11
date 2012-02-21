@@ -1,0 +1,120 @@
+Quantum Computing
+lecture #11
+2012/02/21
+================================================================================
+
+WHATTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT
+
+reminder: oh god there is a quiz
+  most of them are 1-liners, so don't carry the damn library
+  don't write essays
+  he's expecting binary results
+  quote: I'll backtrack and look for reasons not to take off points
+
+--------------------------------------------------------------------------------
+review
+
+U, 1 qubit gate
+implemented
+ - C^n(U)  // n control qubits
+ - Q(U), 1 control qubit, and k target qubits with U applied
+ - 2-level gates
+   huh, they're I with a random submatrix in the middle(?)
+   U = QR  // all unitary, R is diagonal (?)
+   at least understand the idea of decomposition
+ - Any unit matrix can repr using [1-qubit gates, CNOT]
+ - Any unitary matrix, can approximate with arbitrary accuracy using
+   [H, S, T, CNOT]
+
+Measurements
+Measure state |\phi> using a collection of measurement operators
+  {M_j, j=0..k-1} such that I = \sum M_j^H M_j
+We get outcome j w/ prob
+   p_{|\phi>}(j) = <\phi| M_j^H M_j |\phi> = || M_j |\phi> ||^2
+   and \phi collapses to
+   M_j(\phi)/p(j) = M_j |\phi> / || M_j |\phi> || // (unit state)
+
+--------------------------------------------------------------------------------
+stop review
+
+ - M_j are NOT arbitrary
+   remember:
+     I = \sum M_j^H M_j
+   so
+     1 = <\phi|I|\phi> = \sum <\phi| M_j^H M_j |\phi> = \sum p_{|\phi>}(j)
+ - which means that {M_j} is also consistent
+ - p_{|\phi>}(j) depends on j and |\phi>
+
+example:
+projective measurements (on computational basis)
+  M_j = |j><j| for j\in {0, 2^n-1}  // 1 in the j+1 row/col
+  M_j^H = M_j
+  M_j^H M_j = |j><j|j><j| = |j><j| = M_j
+  then:
+  \sum M_j^H M_j = I
+p_{|\phi>}(j) = <\phi| M_j^H M_j |\phi> = <\phi|j><j|\phi>
+  = \bar{<j|\phi>}<j|\phi> = |<j|\phi>|^2
+  note:
+  |\phi> = \sum C_k|k> where C_j = <\phi|j>
+  then, it's a projection:
+  M_j |\phi> = |j><j|\phi> = <j|\phi> |j>
+|\phi> collapses to M_j|\phi>/\sqrt{p(j)} = |j><j|\phi>/||<j|\phi>||
+  = <j|\phi>/||<j|\phi>|| |j>
+  // note: <j|\phi>/||<j|\phi>|| is the global phase
+now, let's walk through a measurement
+  |\phi> = a|0> = b|1>
+  p_{|\phi>}(0) = ||<0|\phi>||^2 = || a<0|0> + b<0|1> ||^2 = ||a||^2
+  let M_i = |i><i|
+  Collapse of 0 leads to:
+    M_0(\phi)/\sqrt{p(0)} = |0><0|\phi>/|a| = a/|a| |0>
+    so a/|a| is global phase
+
+Now, let's switch basis:
+Measurement operators?
+M_+ = |+><+|, M_- = |-><-|
+  it's a complete set (\sum M_j = I), because + and - are orthonormal
+|\phi> = a|0> + b|1>
+  p_{|\phi>}(+) = <\phi| M_+^H M_+ |\phi> = <\phi|+><+|+><+|\phi>
+  = <\phi|+><+|\phi> = ||<+|\phi>||^2
+<+|\phi> = (<0|+<1|)/\sqrt{2} (a|0>+b|1>) = (a + b)/\sqrt{2}
+<-|\phi> = ... = (a - b)/\sqrt{2}
+So |\phi> collapses to (a+b)/||a+b|| |+> when measuring +
+          collapses to (a-b)/||a-b|| |-> when measuring -
+
+And another example:
+n bits, k bits to measure
+PAGE 9, FIGURE 1: illustrating the system
+  measures in the computational of the k qubits
+  M_j = I \tensor |j><j|, for j\in {0..2^k-1}
+okay, so let's break up the |\psi> = |\psi_1>|\psi_2> corresponding to n and k
+  p(j)|\psi> = ||M_j|\psi>||^2 = ||M_j
+  = ||(I \tensor |j><j|)|\psi_1>|\psi_2> ||^2
+  = ||(|\psi_1>)/normalize (|j><j|\psi_2> / normalize) ||^2
+  = || <j|\psi_2> ||^2
+  // use this in programming part of hw 2
+then measurement is
+  M_j|\psi>/\sqrt{p(j)} = <j|\psi_2>|\psi_1>|j> / ||<j|\psi_2>||
+
+
+NOTE: these notes are suspect, I'm kind of thirsty
+We can distinguish |\psi_1> != |\psi_2> with certainty (using
+  measurements) only if |\psi_1> ortho |\psi_2>
+We want M_1, M_2
+  p_{|\phi_1}(1) = || M_1|\phi_1> ||^2 = 1
+  and for 2
+Can we show whether we can prove this? (not starting with the construction right
+    away)
+  I = M_1^H M_1 + M_2^H M_2 + M_3^H M_3  // M_3 might not be necessary
+  1 = <\phi_1|I|\phi_1>
+    = <\phi_1| M_1^H M_1 + M_2^H M_2 + M_3^H M_3 |\phi_1>
+|\phi_1> = a|\psi_2> + b|Z>  // where Z \ortho |\phi_2>
+  1 = |a|^2 + |b|^2  // a and b != 0
+    then |\psi_1> \not\ortho |\psi_2>
+  if a == 0 and b == 1
+  M_1|\psi_1> = a M_j|\psi_2> + b M_1|Z>
+  || M_1|\psi_1> || = b^2 || M_1|Z> ||^2
+1 = |b|^2 <Z|M_1^M_1|Z>
+  \leq |b|^2 <Z|(\sum M_i^H M_i)|Z> = |b|^2  < 1
+  CONTRADICTION (somehow)
+TRY THIS constructive proof, optional
+  find M_1, M_2
