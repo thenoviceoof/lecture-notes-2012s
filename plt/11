@@ -1,0 +1,145 @@
+PLT
+2012/02/22
+#11
+================================================================================
+
+Got into lecture around 15 minutes late, doesn't leem like we really
+started the lecture though
+
+Outline
+ - LR(1) parsers
+ - How to construct an SLR(1) parser
+
+--------------------------------------------------------------------------------
+LR(1) parser
+
+G': 
+0) E' -> E
+1) E -> E^E
+2) E -> a
+
+----------------------------------------
+See online notes for table (it's for a different G):
+
+ State  Action  Goto
+ (       )       $       S 
+0       r2      r2      r2      1
+1       s2              acc      
+2       r2      r2      r2      3
+3       s2      s4               
+4       r1      r1      r1       
+----------------------------------------
+This is the real table for G (sx stands for stack, rx stands for reduce):
+
+state  action
+       a        ^        $      goto
+0      s2                       1
+1               s3       acc
+2               r2       r2
+3      s2                       4
+4               s3       r1
+
+but shit if I know what it's doing
+
+maybe this will clear things up:
+
+Moves made for a^a^a$
+stack        input         action
+0            a^a^a$        shit a, push 2
+0a2          ^a^a$         reduce by E->a, push 1
+0E1          ^a^a$         shift ^, push 3
+0E1^3        a^a$          /* finish by self from here, ha jk */ shift a, push 4
+0E1^3a2      ^a$           reduce E->a, push 4
+0E1^3E4      ^a$           shift ^, push 3
+0E1^3E4^3    a$            shift a, push 2
+0E1^3E4^3a2  $             reduce by E->a, push 4
+0E1^3E4^3E4  $             reduce by E->E^E, push 4
+0E1^3E4      $             reduce by E->E^E, push 1
+0E1          $             accept
+
+okay, I thought I knew what was going on, but it turns out I have no clue
+serves me right for not paying attention
+
+well, apparently it means ^ is right-associative
+also, = is right-associative
+
+non-associative operator?
+equality
+
+--------------------------------------------------------------------------------
+Constructing an SLR parser
+
+LR(0) item: a production with a dot in the RHS
+
+Let I be a set of LR(0) items
+1) closure(I)
+   - add every item in I to closure(I)
+   - if A->a.Bb is in closure(I) and B->gamma is a production,
+     then add B->.gamma to closure(I), and repeat
+
+Let X be a grammar symbol in V \union T
+suppose A->a.Xb is in I
+then:
+  goto(I,X) = closure({A->aX.b}) for all A->a.Xb \in I
+augmented grammars add S'->S, where S is the start state of grammar G
+
+The sets-of-items construction
+Input: An augmented grammar G'
+Output: C, the canonical collection of sets of LR(0) items for G'
+Method:
+   I0 = closure({[S' → ·S]});
+   C = {I0};
+   repeat
+     for each set of items I in C and grammar symbol X such that
+       goto(I,X) is not empty and not in C do
+         add goto(I,X) to C;
+   until no more sets of items can be added to C;
+
+I_0
+E' -> .E
+E -> .E^E
+E -> .a
+
+E -> I_1
+E' -> E.
+E -> E.^E
+
+E-> ^ -> I_3
+E->E^.E
+E->.E^E
+E->.a
+
+E-> ^ -> E -> I_4
+E->E^E.
+E->E.^E
+
+a -> I_2
+E -> a.
+
+
+wait, it's a fucking graph. damn it.
+
+no, aho, I'm not happy. I have no idea what is going on, because the
+damn lecture structure rewards people that don't study
+
+algorithm to construct SLR(1) parsing table:
+
+Input: C = {I0, I1, ... , In}.
+Output: The SLR parsing table functions action and goto.
+
+Method:
+recursive, aho also wrote a "for i=0 to n"
+State i and its action and goto functions are constructed from I_i as follows:
+If item [A→ α·aβ] is in I_i and goto(I_i, a) = I_j,
+  then add "shift j" to action[i, a]. Here a is a terminal.
+If item [A → α·] is in I_i,
+  then add "reduce A → α" to action[i, a] for all a in FOLLOW(A).
+  Here A cannot be S'.
+If item [S' → S·] is in I_i,
+  then add "accept" to action[i, $].
+If goto(I_i, A) = I_j,
+  then in the parsing table set goto[i, A] = j.
+
+The initial state of the parser is constructed from the set of items containing
+  [S' → ·S].
+
