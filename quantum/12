@@ -1,0 +1,113 @@
+Quantum Computing
+lecture #12
+2012/02/23
+================================================================================
+
+OH GOD QUIZ TODAY
+AHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+
+--------------------------------------------------------------------------------
+review
+
+measurements
+ - most you'll see are projected measurements
+ - once you get the vectors, you just follow the steps
+ - go study linear algebra (dot product, etc) if you feel rusty
+|\phi> = a_00|00> + a_01|01> + a_10|10> + a_11|11>
+ - 4 outcomes (basis states), correspond to collapsed states, probability
+ - measure only 1 qubit (left)?
+   - 2 outcomes
+   - collapsed state: (a_00|00> + a_01|01>)/\sqrt{a_00^2 + a_01^2}
+     (for normalization)
+
+using measurements, we can distinguish w/ certainty only ortho states
+
+
+--------------------------------------------------------------------------------
+Today: Bell states (EPR)
+
+Page 10, Figure 1: circuit, H applied to 1, CNOT on (1,applied 2)
+|00> ->(H\tensor I) (|0>+|1>)/\sqrt{2}|0> ->(CNOT) (|00>+|11>)/\sqrt{2}
+  := |\beta_00>
+it's a Bell/EPR state, entangled state
+  cannot be written in tensor-product form
+
+try to write it tensor-product form (proof by contradiction):
+|\beta_00> = (|00>+|11>)/\sqrt{2} = (a_1|0> + b_1|1>)\tensor (a_2|0>+b_2|1>
+  = a_1a_2|00> + a_1b_2|01> + a_2b_1|10> + b_1b_2|11>
+  // then, a_1b_2 = a_2b_1 = 0
+  if a_1 or a_2 = 0, we won't have the |00> term
+  if b_1 or b_2 = 0, we won't have the |11> term
+  ZOMG CONTRADICTION
+
+okay, let's create more states like this one
+  easy: use the same circuit defined above, and use different inputs
+or let's derive the general form for |ij>
+|ij> ->(H) (|0>+(-1)^i|1>)/\sqrt{2}|j> ->(CNOT)
+  (|0j>+(-1)^j|i\bar{j}>)/\sqrt{2} = |\beta_ij>
+  mnemonic, i=1 then negative, j then |01>
+
+bringing up the reason why EPR states were contentious
+ - measure the 1st qubit, then you know the 2nd
+ - no matter if you're across the universe
+ - application
+   - quantum teleportation
+   - superdense coding
+
+// remember, <ij|kL> = <i|k><j|L>
+|\beta_ij> are pairwise orthogonal, and unit length
+  how do we show that \beta are orthogonal?
+  <\beta_(i_1)(j_1)|\beta_(i_2)(j_)>
+  = (<0j_1| + (-1)^i_1<1\bar{j_1}|)/\sqrt{2})
+    (<0j_2| + (-1)^i_2<1\bar{j_2}|)/\sqrt{2})
+  = 1/2( <0j_1|0j_2> + (-1)^i_2<0j_1|1\bar{j_2}> +
+    (-1)^i_1<1\bar{j_1}|0j_2> + (-1)^(i_1+i_2)<1\bar{j_1}|1\bar{j_2}>
+  = 1/2(<j_1|j_2> + 0 + 0 + (-1)^(i_1+i_2)<\bar{j_1}|\bar{j_2}>)
+okay, now go by cases
+ 1) j_1 != j_2, we get 0
+ 2) j_1 = j_2 and i_1 != i_2, we get 1/2(1 + (-1)) = 0
+ 3) j_1 = j_2 and i_1 = i_2, we get 1/2(1 + 1) = 1
+hence, \beta_ij are orthonormal family
+
+--------------------------------------------------------------------------------
+Okay, let's solve a task using EPR states
+----------------------------------------
+quantum teleportation
+
+Alice + Bob prepare |\beta_00> = (|00>+|11>)/\sqrt{2}
+  take 1 qubit each, move apart
+  Alice has another qubit |\psi> (arbitrary, a|0>+b|1>)
+    wants to send |\psi> to Bob
+  No quantum comm channel, but there are classical comm channel
+    (bits, not qubits)
+
+PAGE 10, FIGURE 2: circuit between Alice/Bob
+  |\psi_0> = |\psi>|\beta_00> = (a|0>+b|1>)(|00>+|11>)/\sqrt{2}
+           = 1/\sqrt{2}( a|000> + a|011> + b|100> + b|111> )
+  apply CNOT
+  |\psi_1> = 1/\sqrt{2}( a|000> + a|011> + b|110> + b|101> )
+  apply H
+  |\psi_2> = 1/2( a(|0>+|1>)|00> + a(|0>+|1>)|11> +
+                  b(|0>-|1>)|10> + b(|0>-|1>)|01> )
+           = 1/2( a|000>+a|100> + a|011>+a|111> +
+                  b|010>-b|110> + b|001>-b|101> )
+           = 1/2( |00>(a|0>+b|1>) + |01>(a|1> + b|0>) +
+                  |10>(a|0>-b|1>) + |11>(a|1> - b|0>) )
+  // we move the sum to the right, measurement is easier
+  Measure M_1, Measure M_2
+  |\psi_3> = 
+    { 00: |00>(a|0>+b|1>) = |00>|\psi>
+      01: |01>(a|1>+b|0>) = |01> X|\psi>
+      10: |10>(a|0>-b|1>) = |10> Z|\psi>
+      11: |11>(a|1>-b|0>) = |11> XZ|\psi> }
+  Apply the control gates X^(c_2), Z^(c_1)
+  |\psi_4> = 
+    { 00: |00>|\psi>
+      01: |01>X^2|\psi> = |01>|\psi>
+      10: |10>Z^2|\psi> = |10>|\psi>
+      11: |11>ZXXZ|\psi> = |11>|\psi> }
+           = |c_1c_2> |\psi>
+  OH NO FUCKING WAI
+  Bob has the qubit! (or an identical qubit)
+    keep in mind, we destroyed the original qubit
+    even more surprising when you consider it's an infinite amount of info
