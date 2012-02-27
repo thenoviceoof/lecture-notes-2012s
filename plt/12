@@ -1,0 +1,107 @@
+PLT
+2012/02/27
+#12
+================================================================================
+
+10 minutes late
+
+Talking about important dates
+
+Outline
+--------------------
+Viable prefixes
+parsing action conflicts
+Yacc
+
+huh, implication that we don't *have* to use yacc: some hope for menhir?
+
+(Classical?) LR - can reduce a few times before noting an error
+Canonical LR - will not reduce before noticing an error
+
+oh shit, I don't know my parser families at all
+
+--------------------------------------------------------------------------------
+Viable prefix (DFA for viable prefixes?)
+
+prefix of a right sentential form that does not extend past the right
+end of the rightmost handle in that sequential form
+
+Example:
+ E -> E + E | E * E | a
+
+consider: a + a * a
+grammar is ambiguous
+what are the 2 rightmost derivations?
+  1)
+    E -> E*E
+    E -> E*a
+    E -> E+E*a
+    E -> E+a*a
+    E -> a+a*a
+  2)
+    E -> E+E
+    E -> E+E*E
+    E -> E+E*a
+    ...
+    E -> a+a*a
+so if we go bottom-up?...
+  oh, he's just tracing it backwards, we get two different parse trees
+  talking about handles(?), which one he folds going bottom-up
+yes, the grammar does not specify the associativity. not sure where
+  he's going with this
+
+Okay, now we augment the grammar to get the associativity
+  See the lecture notes, part 3
+  ...
+
+FOLLOW(E) = { symbols that can follow E }
+
+shift/reduce conflict
+  we have a shift and reduce available to us for a particular symbol
+  choose one that gives us the desired associativity
+
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+Practice Problem
+  Resolve the shift/reduce conflicts for state 6 (from example, in course notes)
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+--------------------------------------------------------------------------------
+Using yacc with ambiguous grammars
+
+code:
+  yacc -v expr1.y
+
+So if you want to get an unambiguous grammar from an ambiguous one,
+just pass it through yacc with -v
+
+----------------------------------------
+yacc spec
+
+part 5 of the lecture notes
+
+The shift+goto functions of an SLR(1) parser form a DFA for viable prefixes
+
+An item [A->B.\gamma] is valid for a viable prefix \alpha\beta if there exists
+  S => \alpha A w => \alpha\beta w
+  // useful, can point exactly what prefix is causing trouble
+
+--------------------------------------------------------------------------------
+Error reporting/recovery in Yacc
+  programs
+  statements
+  expressions
+
+  x = y @ z; // not legal java
+  we can generate a ton of errors for this one syntax error
+  where do we handle the error/point to?
+
+  classes of syntactic error (A)
+  A -> error \alpha    // alpha is any string, error is a reserved word
+  okay, so we're somehow folding the error into "lines", and:
+
+    lines : error '\n'  { yyerror("reenter previous line:"); yyerrok; }
+
+  not quite so bad, usually abort the compilation
+  oh, he's talking about a throw back to the mainframe days
+
+next time: talking about syntax directed translation
