@@ -1,0 +1,199 @@
+Quantum Computing
+lecture #13
+2012/02/28
+================================================================================
+
+AHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+HOMEWORK DUE AHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH
+
+If you want to talk about the quiz, see prof
+
+Homework #3 is out, do the theory part before the midterm
+
+AHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH MIDTERM NEXT WEEK
+
+--------------------------------------------------------------------------------
+Review
+
+Bell states
+  |\beta_ij> = (|0j>+(-1)^j|i\bar{j}>)/\sqrt{2}
+  showed these are orthonormal, and entangled
+Also did stuff with teleportation (transfering qubits over classical channels)
+
+--------------------------------------------------------------------------------
+Outline
+
+Superdense coding
+  Complementary to teleportation
+Quantum Queries
+
+--------------------------------------------------------------------------------
+Superdense coding
+
+Alice+Bob, share |\beta_00> = (|00>+|11>)/\sqrt{2}
+Alice wants to send 2 classical qubits to Bob (00, 01, 10, 11)
+Depending on what she wants to send, she acts on her bell qubit
+
+PAGE 10, FIGURE 13: Mystery operator applied
+  where ? = {00: I, 01: Z, 10: X, 11: iY}
+ex. to send 00
+  |\beta_00> -> I\tensor I -> (|00>+|11>)/sqrt{2} = |\beta_00>
+ex. to send 01
+  |\beta_00> -> Z\tensor I -> (|00>-|11>)/sqrt{2} = |\beta_10>
+ex. to send 10
+  |\beta_00> -> X\tensor I -> (|10>+|01>)/sqrt{2} = |\beta_01>
+ex. to send 10
+  |\beta_00> -> iY\tensor I -> i(i|10>-i|01>)/sqrt{2} = |\beta_11>
+// \tensor with I, to get 2nd qubit
+
+Afterwards, Alice gives Bob her qubit
+  and now Bob has one of the 4 bell states |\beta_ij>
+  since the states are orthonormal, bob can distinguish them with
+  certainty using 4 measurements
+We transferred 1 qubit, got 2 classical bits
+
+Not really practical, it's more a toy? (pedagogy)
+
+I'll need to read up on this, don't fully understand this
+
+Now, we're going to move away from talking only about operators and
+circuits and stuff
+--------------------------------------------------------------------------------
+Quantum Queries
+
+Ask a quantum computer something
+
+f:{0,1} -> {0,1}  // boolean
+corresponding query (unitary operator)
+  U_f |ij> = |i>|j\xor f(i)>
+ex.
+  U_f |i>|0> = |i>|f(i)>
+  U_f |i>|1> = |i>|\not{f(i)}>
+
+what's U_f look like?
+PAGE 10, FIGURE 2: Circuit with U_f as a black box
+
+if we apply U_f twice?
+  |i>|j> -> U_f -> |i>|j\xor f(i)> -> U_f -> |ij>
+U_f^(-1) = U_f  // we'll prove this later
+
+what if we do something more complicated?
+PAGE 12, FIGURE 3: example circuit
+
+|00> -> H -> (|0>+|1>)|0>/\sqrt{2} = (|00>+|10>)/\sqrt{2} -> U_f
+  -> (|0>|f(0)>+|1>|f(1)>)/\sqrt{2}
+This evals with f(0) and f(1)???
+This is known as quantum parallelism
+
+***QUANTUM PARALLELISM***
+DOOOOOOOOOOOOOOOOOOOOOOOM
+
+--------------------------------------------------------------------------------
+Generalize?
+f:{0..2^n-1} -> {0,1}  // boolean result of n vars
+U_f|i>|j> = |i>|j\xor f(i)>
+  // where i is in n qubits wide
+
+it's not so trivial: query cost must be paid
+
+see some algos next class
+
+okay now we're examining the n-bit U_f
+PAGE 12, FIGURE 4: just drawing out the n-bit U_f
+|0>|0> -> H^{\tensor n} -> 1/2^{n/2} \sum_i^{2^n-1} |i>|0>
+  -> U_f -> 1/2^{n/2} \sum_i^{2^n-1} |i>|f(i)\xor 0>
+  = 1/2^{n/2} \sum_i^{2^n-1} |i> |f(i)>
+BAM, f(i) executed for all i
+
+the hard part is extracting some global information about f
+
+need to manipulate the superposition in clever/non-intuitive ways
+
+what if n=1 and apply U_f?
+  |00> -> |0>|f(0)>
+  |01> -> |0>|\not{f(0)}>
+  |10> -> |1>|f(1)>
+  |11> -> |1>|\not{f(1)}>
+so, what is U_f?
+  U_f depends on f(0), f(1)
+split it up by cases:
+  1. f(0) = 0
+    U_f = [[1 0 ? ?]
+           [0 1 ? ?]
+           [? ? ? ?]
+           [? ? ? ?]]
+  2. f(0) = 1
+    U_f = [[0 1 ? ?]
+           [1 0 ? ?]
+           [? ? ? ?]
+           [? ? ? ?]]
+how can we combine these two cases?
+U_f = [[X^f(0)   0     ]
+       [0        X^f(1)]]
+
+----------------------------------------
+Now, let's generalize, for [n\geq 1]
+  |0..0>|0> -> |0..0>|f(0)>
+  |0..0>|1> -> |0..0>|\not{f(0)}>
+  etc
+Split it up by cases again
+split it up by cases:
+  1. f(0) = 0
+    U_f = [[1 0 ? ?...]
+           [0 1 ? ?...]
+           [? ? ? ?...]
+           [? ? ? ?...]
+           [..........]]
+  2. f(0) = 1
+    U_f = [[0 1 ? ?...]
+           [1 0 ? ?...]
+           [? ? ? ?...]
+           [? ? ? ?...]
+           [..........]]
+U_f = [[X^f(0) 0      0      ...]
+       [0      X^f(1) 0      ...]
+       [0      0      X^f(2) ...]
+       [........................]]
+Size of U_f?
+  n+1 qubits
+  size is 2^(n+1) x 2^(n+1)
+U_F is unitary
+  (U_f)^H = U_f
+  U_f^2 = I
+  due to X, I being unitary
+
+--------------------------------------------------------------------------------
+What about a more general query?
+f: {0 .. 2^n - 1} -> {0 .. 2^m - 1}
+  ex. doing multiplication
+
+Define:
+  U_f |i>|j> = |i>|j \oplus f(i)>
+  // where i is n qubits, j is n qubits
+  // \oplus is (+ mod 2^m)
+
+acting solely on j? easy (?)
+what if sin(j)? you need to build an arithmetic scaffolding, hard
+
+Now, what's the matrix U_f (multi-qubit)?
+First, a definition
+  A_p |j> = |p\oplus j>  // with p, j \in {0 .. 2^m - 1}, \oplus = + mod 2
+  PAGE 12, FIGURE 5: showing the structure of A_p, an offset I
+  1's diagonal start on row p+1
+  k = 2^m - p - 1
+  goes back up to the top at column k+1
+  A_0 = I
+  A_1 = ...
+Then:
+  U_f |i> |j> = |i> A_{f(i)} |j>
+Such that:
+  U_f = [[ A_f(0)  0       0      ...]
+         [ 0       A_f(1)  0      ...]
+         [ 0       0       A_f(2) ...]
+         [...........................]]
+  keeping in mind that A_f(i) is of size (2^m x 2^m)
+
+For m=1, n=1
+  A_f(0) = X^f(0)
+
+okay, breaking now, going to pick this up next class
