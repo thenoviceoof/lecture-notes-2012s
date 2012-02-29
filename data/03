@@ -1,0 +1,77 @@
+DDM
+Lecture #3
+2012/02/06
+================================================================================
+Fuck yeah (naive) Bayes!
+
+recovering why knn is a bad idea (curse of dims (huge example set),
+                                  storage/runtime)
+
+talking about feature space of spam problem for knn
+ - vector length = length dictionary
+ - bejesus fucking christ, that's big
+
+--------------------------------------------------------------------------------
+Linear classifiers:
+y(x) = f(w\cdot x)
+ - w weights, x feature vector
+
+--------------------------------------------------------------------------------
+Naive Bayes
+Not really naive, nor really bayesian
+ - estimate each component of w independently
+
+balls, didn't bother working out this problem beforehand
+thinking it's 50%
+
+making a tree diagram:
+ - 10,000 people
+ - 100 sick, 9900, healthy
+ - 99 pos/sick, 1 neg/sick, 99 pos/healthy, 9801 neg/healthy
+ - yeah, I'm a dumbass. so slow so slow so slow
+
+Bayes rule:
+  p(x,y) = p(x|y)p(y) = p(y|x)p(x)
+  p(y|x) = p(x|y)p(y)/p(x)
+  + normalization of p(x)
+  p(x) = \Sigma p(x|y_i)p(y_i)
+
+applying:
+  p(sick|test+) = p(test+|sick)p(sick)/p(test+)
+  with p(test+) = p(test+|sick)p(sick) + p(test+|\not{sick})p(\not{sick})
+
+example:
+  p(spam|words) = p(words|spam)p(spam)/p(words)
+  p(words|spam) = \Pi p(word_i|spam)
+  switch to x (word), k (ham, spam=1)
+  p(x_i|k) = p_{ik}
+  p(k) = p_k
+training the model means merely counting things
+  count occurrances of words for each class of documents
+  bad: if zero occurances, then overall probability is zero
+but ignoring that for now...
+  p(x|k) = \Pi p_ik
+  p(k|x) = p_k \Pi p_ik^(x_ik) (1-p_ik)^(1-x_ik) / p(x)
+how does this fit in f(w\cdot x)?
+let's not loop over D (length of dictionary)
+  p(x|k) = p_ik^{x_ik} (1-p_ik)^(1-x_ik)
+         = (p_ik/((1-p_ik)))^{x_ik} (1-p_ik)
+  log p(k|x) = log( p_k/p(x) [ \Pi_i (p_ik/((1-p_ik)))^{x_ik} (1-p_ik) ] )
+             = log(p_k) - log(p(x)) + \Sigma x_ik log(p_ik/((1-p_ik))) +
+               \Sigma log(1-p_ik)
+               // let w_0^k = log(p_k) - log(p(x)) + \Sigma log(1-p_ik)
+               // let w_i^k = log(p_ik/((1-p_ik)))
+             = w_0^k + \Sigma_i x_ik w_i^k
+  omg a fuckton of math (not really)
+  look at the paper he's going to post, make sure you know what's going on
+
+to overcome the zero occurance problem, add some pseudo-counts
+  p_ik = (n_ik + \alpha)/(n_k + \beta)
+  how to determine \alpha and \beta?
+  surprise! these are the tuning parameters
+
+--------------------------------------------------------------------------------
+Transition to hacking part
+  staying for the hot dogs (wth)
+
+talking about bash

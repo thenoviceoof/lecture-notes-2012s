@@ -1,0 +1,98 @@
+DDM
+Lecture #2
+2012/01/30
+================================================================================
+jk, moses did not drop
+talking about the class some more (people picked up)
+yay, slideshare
+VIVEK YOU NOISY BASTARD
+
+Do some math, do some hacking
+OCR
+ - recaptcha
+   oh, so that's why there are two images (verify, then translate)
+ - we get segmented digits, extract digits?
+
+ref supervised learning, classification
+ - supervised - input x, predict output y (regression)
+   - training data: {(x_i,y_i)}^N // tuples
+     X_ik // matrix, rows measurements (i), cols vars/features (k)
+       maps to output y
+ - classification - discrete outputs (multivariate/continuous input)
+
+chapter 2,13, from Hastie (Elements of Statistical Learning)
+chapter 2 from Bishop
+
+k-nearest neighbors
+ - doing a quick explanation of wget, to get images
+ - array of intensities
+   - reduce to "bag of vectors": flatten to 1d vector
+   - for 16x16 image, 256d vector
+ - memorize all the data
+ - find nearest training data labels
+   - assume nearby things are similarly labeled
+   - max neighbor type, take on same type?
+   - small k, complex boundary
+   - 
+ - confusion matrix
+   - testing the classifier: compare rows (given digit)
+     against cols (classified digit)
+ - well, that was embarrassingly simple
+ - math:
+   - \hat{y}(x) = 1/k \Sigma_(x_i \in N_k(x)) y_i
+     where N is nearest neighbors
+     if \hat{y} > 0.5, 1
+     else, 0
+     ( majority vote )
+ - naive implementation
+--------------------
+given x
+for x_i < X_train:
+    d_i^2 = ||x_i-x||^2
+keep k closest
+take majority vote
+--------------------
+   - touch every element all the time
+   - scales linearly in size/time of training set
+   - k-d tree has O(lg N) access (fix the for loop)
+     - essentially, chunk up the space
+     - have to grow the tree, rawr
+ - naive?
+   - k-nearest: early 50's, very early
+   - curse of dimensionality
+     - Bellman, 1961
+     - higher dims, same number of learning data
+       learning data is very sparse
+     - ex. to cover %1 of the volume, need to cover linear distance e?
+       e = r^(1/D)
+       r is portion of volume
+       D is dim
+       e is linear distance on each dim
+     - D = 3; 0.22
+       D = 10; 0.63
+       D = 100; 0.95
+     - even if we had infinite brute force power, not the best idea
+
+Image classification
+ - decide between landscape/headshot
+ - if we use k-nearest neighbors
+   - 100x100 is very high dim
+   - also, rotations/shifts screw this shit up
+ - since we have color, we use that
+   - bin the shit out of these RGBs
+ - start with MxNx3, go to 3x255
+ - how many bins?
+   - too many, noisy/overly complex
+   - too few, overly simple
+ - to determine k:
+   run them on testing data for different k, determine max accuracy
+   - typically, fall off slowly with too large k
+
+Advanced kNN
+ex. ch. 13 Hastie, ch 8 Segaran
+ - weighted nearest neighbor
+ - feature scaling (differing dimension units, divide by variance)
+
+Note: kNN can learn highly non-linear things
+
+Rest of class is about command line/API stuff, probably slow

@@ -1,0 +1,164 @@
+DDM
+Lecture #5
+2012/02/27
+================================================================================
+
+note: switching from \theta to t
+
+Reviewing Naive Bayes
+  talking about the parameter estimation
+  w_jc = log((t_jc(1-t_jc))/(t_jo(1-t_jc)))
+  t_jc = n/N
+
+Max likelihood
+  t_ML = argmax_t p(D|t)
+  // this leads to n/N
+Max a posterior
+  t_MAP = argmax_t p(t|D)
+  // leads to (n+a-1)/(N+a+b-2), with p(t) = Beta(t;a,b)
+  // avoids overfitting
+Bayesian Inference
+  p(t|D) = P(D|t)p(t)/p(D)
+  // with p(t) = Beta(t;a,b)
+  p(t|D) = Beta(t; n+a, N+a+B-1)
+  // t_MAP is the mode of p(t|D)
+
+we can use any of these for naive bayes
+
+now, we'll do max likelihood, and add some other stuff?
+
+--------------------------------------------------------------------------------
+Linear regression
+
+  y = yhat (x; w) + e
+  // yhat: deterministic fn of x parameterized by w // x,w are vectors
+  // e: additive gaussian noise, mean 0, var \sigma^2
+  p(y | x,w) = N(y; yhat(x,w), \sigma^2)
+
+  likelihood over all the data points?
+    // treat them IID (identical, independently distributed)
+  D = {(x_i, y_i)}^N
+  P(D|w) = \prod_i^N \f{1}{\sqrt{2\pi\sigma^2}} *
+           \exp{-1/(2\sigma^2) [y_i - yhat(x_i,w)]^2}
+  // most things are IID, hard to do it otherwise
+  let yhat_i = yhat_(x_i,w), for ease of writing
+    keep in mind that it's a function of x_i, not y
+
+  time to carry out the optimization
+  log(p(D|w) = \sum_i^N { -1/2 log(2\pi\sigma^2) - 1/(2\sigma^2)(y_i-yhat_i)^2}
+    // first term is independent of w
+  so:
+  log(p(D|w) \proportional \sum_i^N {(y_i-yhat_i)^2}
+
+  note: max likelihood for additive gaussian noise is equivalent to least squares
+  
+  now, we'll assume a linear predictor
+  yhat(x,w) is linear, w\cdot x // with implicit constant feature (+w_0)
+
+  specify the loss function:
+  L = \sum_i^N (y_i - w\cdot x_i)^2
+  // it's quadratic in w: we can take the derivative and solve
+  d_{w_k}(L) = -2 \sum_i^N (y_i - w\cdot x_i) d_{w_k}(w\cdot x_i)
+    d_{w_k}(w\cdot x_i) = x_ik
+  d_{w_k}(L) = -2 \sum_i^N (y_i - w\cdot x_i) x_ik
+  
+  first, let's move to matrix notation
+  X_ik = i-th example, k-th feature
+  w\cdot x_i = [Xw]_i
+  d_{w_k}(L) = \sum_i [y-Xw]_i X_ik
+  d_{w_k}(L) = X^T [y - Xw]
+
+  Set it to zero, and solve:
+  X^T y = X^T X w
+  w = (X^T X)^{-1} X^T y
+  // known as the normal equations
+  // the (X^T X) models the cross-talk between features, yay
+  however, X^T X is size^2, and matrix inversion is O(n^3)
+
+optimizations/alternatives?
+
+Gradient descent
+  We know our loss fn is quadratic, we just want the optimum
+
+  basic idea:
+  start somewhere, compute gradient, move in that direction
+  once you get somewhere flat, you're at a local optimum
+  with a convex loss (quadratic surface), local optimum is global optimum
+
+  to implement:
+  w = w - dt * d_w(L)
+    = w - dt X^T[y - Xw]
+  we do have to tune dt, parameter
+    we can use the curvature to auto-tune (newton-raphson)
+  also, it's iterative: may or may not be desirable
+
+Not the end all:
+  y_i \in {0,1}, our model doesn't really fit the data
+  also, least squares is sensitive to outliers
+PAGE 11, FIGURE 1: illustrate large errors, due to huge plane
+
+--------------------------------------------------------------------------------
+Logistic Regression
+
+log(p/(1-p)) = w\cdot x
+  it's a linear model, but applied to the log odds
+  p(x,w) = e^{w\cdot x}/(1+e^{w\cdot x}) = 1/(1 + e^{-w\cdot x})
+
+  modeling the probability p,
+  with a logistic fn that maps w\cdot x to [0,1]
+PAGE 11, FIGURE 2: illustrate how logistic mapping works
+
+likelihood:
+  with D = {(x_i, y_i)}^N
+p(D|w) = \prod_i^N p(x_i,w)^y_i [1-p(x_i,w)]^{1-y_i}
+  let p_i = p(x_i,w)
+p(D|w) = \prod_i^N p_i^y_i [1-p_i]^{1-y_i}
+
+define the loss fn:
+L = log(p(D|w)) = \sum_i^N { y_i log(p_i) + (1-y_i)log(1-p_i) }
+  = \sum_i^N { y_i log(p_i/(1-p_i)) + log(1-p_i) }
+  // now, log(p_i/(1-p_i)) = w\cdot x_i
+  = \sum_i^N { y_i w\cdot x_i) + log(1 + e^{w\cdot x}) }
+  // not sure where log(1 + e^{w\cdot x}) came from
+
+take the derivative, 
+d_{w_k}(L) = \sum_i^N { y_i x_ik - d_{w_k}( log(1+e^{w\cdot x}) ) }
+  d_{w_k}( log(1+e^{w\cdot x}) ) = 1/(1+e^{w\cdot x_i}) e^{w\cdot x_i} x_ik
+                                 = p_i x_ik
+= \sum_i^N { y_i x_ik - p_i x_ik }
+= X^T [ y-p ]
+  // with p_i = 1/(1+e^{w\cdot x_i})
+
+this seems similar to linear regression:
+d_{w_k}(L) = X^T [y - Xw]
+
+can we get an exact, closed form solution for logistic regression?
+  no: \sum_i^N y_i x_ik = \sum_i^N 1/(1+e^{-w\cdot x}) x_ik
+  because we aren't convex
+
+so, we just have to do gradient descent
+  but since we're not convex, local=overall optimum is not guaranteed
+
+----------------------------------------
+Newton-Raphson method
+
+use 2nd order to inform the gradient descent step size
+
+remember newton's method: solve gradient with fn, use that as next,
+solve for the root
+
+newton-raphson, we solve for the root of the 1st derivative
+
+x_{n+1} = x_n - f'(x_n)/f''(x_n)
+x = x - H^{-1} \divergence(f)
+  // H, replace with the Hessian matrix
+  // http://en.wikipedia.org/wiki/Hessian_matrix
+
+batch method - when we add a row, we have to update lots of things
+
+--------------------------------------------------------------------------------
+break time!!!
+--------------------------------------------------------------------------------
+
+talking about interacting with the nytimes API
+

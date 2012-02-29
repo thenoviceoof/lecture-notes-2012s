@@ -1,0 +1,51 @@
+Data Driven Modeling
+Lecture #1
+2012/01/23
+================================================================================
+Moses hawks devfest
+
+Jake Hofman
+ - jmh2045
+ - he's doing yahoo research
+ - jakehofman.com/ddm/
+
+format of the class: math first half, practical second half
+
+talking about spam example
+
+things to use:
+ - infochimp
+ - google prediction api
+ - vowpal_wabbit - ML project
+
+workflow:
+ - data
+ - viz/sanity check
+ - clean/filter
+ - features
+ --- usual ML course material
+ - model
+ - loss fn (EM?)
+ ---
+ - algo -> min loss
+ - performance measure
+ - train (params to min loss)
+ - test (withheld data)
+
+hanging out in the supervised world more?
+
+balance simplicity and complexity:
+ - too simple to generalize (explain the past)? (underfit)
+ - too complex to predict future? (overfit)
+
+talking about netflix prize
+
+books - not required to buy any book
+ - the elements of statistical learning (free! pdf!)
+ - Collective intelligence
+ - Pattern Recognition and Machine Learning (bishop)
+ - O'Rielly (upgrade to electronic version with ISBN)
+
+--------------------------------------------------------------------------------
+Jake talks about his work
+

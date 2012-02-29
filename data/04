@@ -1,0 +1,106 @@
+DDM
+Lecture #4
+2012/02/13
+================================================================================
+
+talking about the homework
+ - digits will be okay, spam data is less so
+ - make sure to play around with k
+
+--------------------------------------------------------------------------------
+Review
+
+naive bayes
+fit globally linear function (weighed average), with weights fit indep (naive)
+talking about the spam filter example
+remember: lg p(x|c)/p(x|0) = \vector{w}\cdot\vector{x} + w_0
+  where w_j = log( \theta_jc(1- \theta_j0)/(\theta_j0(1-\theta_jc)) )
+  // let theta = prob
+
+okay, today justifying the pseudo-counts used to avoid 0-counts
+
+outline:
+ - maximum likelihood inference (\theta_NL = argmax_\theta p(D|\theta))
+ - bayesian inference
+   the "naive bayes" stuff is actually max likelihood
+   limit on bayes to justify the pseudo-counts
+
+I'm hungry
+
+--------------------------------------------------------------------------------
+max likelihood
+
+N heads in a row
+ - is the coin biased
+
+\theta_NL = argmax_\theta p(D|\theta)
+best param: \theta that makes the data most likely
+
+D = {h_i} // coin flips
+p(D|theta) = \Pi_i \theta^h_i (1 - \theta)^(1-h_i)
+           = \theta^(\Sigma_i h_i) (1 - \theta)^(\Sigma_i 1-h_i)
+log-likelihood
+  \mathbb{L} = log p(D|\theta)
+  0 = d_\theta \mathbb{L} = n log(\theta) + (N-n) log(1-\theta)
+  0 = n/\theta - (N-n)/(1-\theta)
+  \theta = n/N  // got the naive bayes result back!
+
+--------------------------------------------------------------------------------
+bayesian inference
+  haha, talking about the battle between bayesians and frequentists
+
+p(\theta|D) = p(D|\theta)p(\theta)/p(D)
+posterior = likelihood * prior / [marginal likelihood, evidence]
+specifically, to the practice of inferring the probability of a parameter
+
+talking about degree of belief as probability in the bayesian world
+  talking up distributions of probability
+
+different probability distributions:
+  p(\theta) = \theta (1-\theta) / Z  // Z is normalizing
+  Z = \int_0^1 d\theta \theta(1-\theta) = 1/6
+beta distribution:
+  p(\theta) = 1/\Beta(\alpha,\beta) \theta^(\alpha - 1) (1 - \theta)^(\beta - 1)
+  \Beta(a,b) = \int_0^1 d\theta \theta^(a - 1) (1 - \theta)^(b - 1)
+
+p(D|\theta) = \theta^n (1-\theta)^(N-n)
+p(\theta) = 1/\Beta(\alpha,\beta) \theta^(\alpha - 1) (1 - \theta)^(\beta - 1)
+p(\theta|D) = 1/p(D) 1/\Beta(\alpha,\beta)
+              \theta^(n+ \alpha - 1) (1-\theta)^(\beta - 1 + N-n)
+Z = 1/p(D) 1/\Beta(\alpha,\beta)
+  = \int_0^1 d\theta \theta^(n+\alpha-1) (1-\theta)^(N-n+\beta-1)
+Z = \Beta(n+\alpha, N-n+\beta)
+p(\theta|D) = Beta(\theta; n+\alpha, N-n+\Beta)
+  posterior has same form as prior
+  beta is conjugate to the bernoulli distribution
+
+find the mode of the posterior probability
+  \theta_map = argmax_\theta p(\theta|D)
+looks a lot like max likelihood, just probability flipped (p(D|\theta))
+  p(\theta|D) ~ \theta^(n+\alpha-1) (1-\theta)^(N-n+\beta-1)
+  0 = d_\theta log p(\theta|D)
+  ...
+  \theta_MAP = n'/N' = (n+\alpha-1)/(N+\alpha+\beta-2)
+  recovered the hack! (pseudo-counts, based on previous info)
+  not really bayesian, we threw away the rest of the distribution
+  maybe use the mean parameter value under the posterior?
+    E_p(\theta|D) [\theta]
+  or maybe you just care about predictions
+    p(h|D) // h new observation
+    p(h|D) = \int d\theta p(h,\theta|D)
+           = \int d\theta p(h|\theta,D) p(\theta|D)
+      // p(h|\theta,D), likelihood of new observation
+      // p(\theta|D), weight by posterior
+           = \int_0^1 d\theta \theta^h (1-\theta)^(1-h)
+             1/\Beta(n+\alpha, N-n+\beta) \theta^(n+\alpha-1)
+             (1-\theta)^(N-n+\beta-1)
+           = \Beta(n+\alpha+h, N-n-h+\beta+1) / \Beta(n+\alpha, N-n+\beta)
+    this is the bayesian way of doing things
+    we choose beta, for ease of computation
+      // oh god non-parametric bayes
+
+--------------------------------------------------------------------------------
+switch over to hacking stuff
+  didn't tell us what was going on, not doing that anymore? :(
+
+email script - get from imap
