@@ -1,0 +1,146 @@
+PLT
+2012/02/29
+#13
+================================================================================
+
+Got in 20 minutes late DAMN YOU EMBEDDED
+
+--------------------------------------------------------------------------------
+Outline
+
+syntax-directed translation
+SDD's and SDT's
+Synthesized and inherited attributes
+
+--------------------------------------------------------------------------------
+Syntax Directed Definition (SDD)
+
+in this case, we only have the lexer and parser, with token going
+lex->parser, and gint(?) going parser->lex (?)
+output of parser is an AST
+SDD can be used to specify the translation
+
+CFG + semantic rules
+attributes, synthesized
+  Attributes are values computed at the nodes of a parse tree.
+  when we do the reductions (bottom up, remember) we synth the attrs
+
+ex. of semantic rule
+  E_1 -> E_2 + E_3
+  E_1 v = E_2 v + E_3 v
+
+s-attributed SDD: every attribute is synthesized
+  s-attr SDD's are useful for bottom up parsing
+
+Inherited attrs
+  taken from parents, self, and children
+
+l-attributed SDD: every attribute is synth'd, or inherited from the
+  parent + siblings to the left (assuming binary tree)
+
+----------------------------------------
+Example:
+  s-attributed SDD, for translating signed bit strings to decimal numbers
+  attributes (+ actions(?)) (copy-pasta):
+    BNum -> Sign List      { BNum.val = Sign.val x List.val }
+    Sign -> +              { Sign.val = +1 }
+    Sign -> -              { Sign.val = -1 }
+    List -> List1 Bit      { List.val = 2 x List1.val + Bit.val }
+    List -> Bit            { List.val = Bit.val }
+    Bit  -> 0              { Bit.val = 0 }
+    Bit  -> 1              { Bit.val = 1 }
+
+  The attributes, BNum.val, Sign.val, List.val, and Bit.val, are all
+  synthesized attributes that represent integers.
+
+example +101 breaks into tree:
+  (BNum (sign +)
+        (list (list (list (bit 1))
+                    (bit 0))
+              (bit 1)))
+
+Talking about transferring it to yacc
+  BNum : Sign List      { $$ = $1 * $2; }
+       ;
+  Sign : +              { $$ = +1; }
+         -              { $$ = -1; }
+       ;
+  List : List1 Bit      { $$ = 2*$1 + $2; }
+       : Bit
+       ;
+  Bit  : '0'            { $$ = 0; }
+       : '1'            { $$ = 1; }
+       ;
+
+----------------------------------------
+Another example:
+  s-attr SDD based on SLR(1) grammar to map arithmetic expr w/ + into ASTs
+  ex. expr 1+2+3
+
+grammar time:
+  E -> E + E
+       | T
+jk it's ambiguous lol
+
+stop, grammar time:
+  E -> E_1 + T 		{ E.n = Node('+', E_1.n, T.n); }
+       | T		{ E.n = T.n; }
+       ;
+  T -> (E)		{ T.n = E.n; }
+       | num            { T.n = Leaf(num, num.n); }
+// Leaf: usually a pointer into a symbol table
+
+1+2+3
+(E (+ (E (+ (E (T 1))
+            (T 2)))
+      (T 3)))
+  OR 
+(E (E (E (T 1))
+      +
+      (T 2))
+   +
+   (T 2))
+// god DAMN s-expressions are cool
+
+A good strategy for compiler: produce a AST (from Aho. hmm)
+
+----------------------------------------
+Another example:
+  what if we want an l-attr SDD instead? We need to left-factor the grammar
+
+syntax: Node.i - inherited value, Node.s - synthesized value
+
+grammar:
+  E -> T A		{ E.n = A.s;
+                          A.i = T.n }
+       ;
+  A -> + T A_1		{ A_1.i = Node('+', A.i, T.n);
+                          A.s = A_1.s }
+       ;
+  A -> \epsilon		{ A.s = A.i }
+       ;
+  T -> (E)		{ T.n = E.n }
+       | num		{ T.n = Leaf(num, num.s) }
+       ;
+
+AST: 1+2+3
+(E (T 1)
+   (A +
+      (T 2) 
+      (A_1 +
+           (T 3)
+           (A_1 \epsilon))))
+
+attach attrs to the nodes:
+(E{n: A.s}
+  (T{n: 1} 1)
+  (A{i: T.n, s: A_1.} +
+    (T{n: 2} 2) 
+    (A_1{i: Node('+',A_1.i,T.n), s: A_1.s} +
+      (T{n: 3} 3)
+      (A_2{i: Node('+',A_1.i,T.n), s: A_2.i} \epsilon))))
+attrs get passed up the tree (?)
+
+these ARE a bit more complicated (admitted by Aho)
+
+and end
