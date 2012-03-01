@@ -1,0 +1,62 @@
+Embedded Systems
+Lectures #12
+2012/03/01
+================================================================================
+
+Talking about serial communications stuff
+
+morse code, kind of like huffman encoding
+
+ha, he actually used a teletype (well, in grade school)
+  very loud, doop
+  and smelly, too, apparently
+modem - telephone interface, because you had to acoustically couple
+
+--------------------------------------------------------------------------------
+RS-232
+  since early 1960
+  12V max/min, interesting such a large range
+  no clock, though
+  pre-set agreed baud rate
+oh, the 9-pins actually DO something (derp)
+  RxD and TxD might be switched? (dep on modem or terminal?)
+
+UART: usually use 16x baud clocks
+
+variants of RS-232
+ - parity (even)
+ - 2 stop bits
+
+typical max baud: 38400
+
+RS-422, differential signaling
+ - differential signaling, epic noise handling
+
+--------------------------------------------------------------------------------
+I2C bus
+
+we did this last semseter, blurp
+
+--------------------------------------------------------------------------------
+USB
+
+ha, power is cool.
+  next class, going to bring in a bunch of usb dooddads
+
+oh, it's a polled bus
+
+4 types of data flow
+ - control
+ - bulk: bursty
+ - intrerrupt: for events
+ - isochronous: streaming real-time transfer
+   request a certain amount of bandwidth/latency
+
+talking through a device's info stuff
+
+USB is complicated, surprise!
+
+huh, ethernet ranges over 6 orders of speed, but protocol is still the same
+
+why is it faster than RS-232
+  lots of careful electrical design: plug design, fancy DSP
