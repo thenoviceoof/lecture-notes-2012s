@@ -83,10 +83,10 @@ grammar time:
 jk it's ambiguous lol
 
 stop, grammar time:
-  E -> E_1 + T 		{ E.n = Node('+', E_1.n, T.n); }
-       | T		{ E.n = T.n; }
+  E -> E_1 + T          { E.n = Node('+', E_1.n, T.n); }
+       | T              { E.n = T.n; }
        ;
-  T -> (E)		{ T.n = E.n; }
+  T -> (E)              { T.n = E.n; }
        | num            { T.n = Leaf(num, num.n); }
 // Leaf: usually a pointer into a symbol table
 
@@ -111,16 +111,16 @@ Another example:
 syntax: Node.i - inherited value, Node.s - synthesized value
 
 grammar:
-  E -> T A		{ E.n = A.s;
+  E -> T A              { E.n = A.s;
                           A.i = T.n }
        ;
-  A -> + T A_1		{ A_1.i = Node('+', A.i, T.n);
+  A -> + T A_1          { A_1.i = Node('+', A.i, T.n);
                           A.s = A_1.s }
        ;
-  A -> \epsilon		{ A.s = A.i }
+  A -> \epsilon         { A.s = A.i }
        ;
-  T -> (E)		{ T.n = E.n }
-       | num		{ T.n = Leaf(num, num.s) }
+  T -> (E)              { T.n = E.n }
+       | num            { T.n = Leaf(num, num.s) }
        ;
 
 AST: 1+2+3

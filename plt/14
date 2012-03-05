@@ -1,0 +1,86 @@
+PLT
+2012/03/05
+#14
+================================================================================
+
+Got to class 20 minutes late (again) DAMN YOU PLT
+
+Talking about the assignment: talking about the infix to postfix problem
+could've just printed it
+
+--------------------------------------------------------------------------------
+Outline
+
+SDD's and SDT's
+Intermediate Representations
+Three-address code
+Semantic analysis
+
+--------------------------------------------------------------------------------
+Review SDDs
+
+talking about SDDs, zoning out
+
+I have no idea what he's doing
+
+Okay, we're talking about the last example in the last lecture
+  he said something about semantic action: hope he didn't hop to semantic
+  analysis
+
+if you want this, you can roll your own SDD parser
+but you can also use yacc
+
+quote: "and now you know java!"
+
+--------------------------------------------------------------------------------
+Intermediate representations (IR)
+
+talking about gcc suites: convert many source languages to many targets
+  need a flexible IR
+
+Optimization on IR:
+Tree -> DAG (directed acyclic graph)
+a+a*(b-c)+(b-c)*d
+as a tree:
+(+ (+ a (* a (- b c)))
+   (* (- b c) d))
+we have two a's in the left branch:
+  instead of two copies, just point to a single a
+also, we have (- b c) in two places
+  instead of two copies, just point to a single (- b c)
+
+generally: convert a tree to a DAG with shared objects
+value-number method
+  idea: hash the component, see if it appears elsewhere
+  O(n): n length of AS
+
+--------------------------------------------------------------------------------
+Three-address code
+
+wait wtf is this
+I guess this is about things affecting 3 address things?
+  apparently, it's in the book
+
+1. x=y op z
+2. x = op z
+3. x = y // copy
+4. goto L
+5. if x goto L
+   if False x goto L
+6. if x replop y goto L
+7. procedure calls f(x,y)
+   stack code:
+   param x
+   param y
+   call f, z
+   return f
+8. x[i] = y
+   x = y[i]
+9. x = &y
+   x = *y
+   *x = y
+
+
+he's talking about stack and heaps??? wat
+
+derp
