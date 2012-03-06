@@ -1,0 +1,32 @@
+Embedded Systems
+Lectures #13
+2012/03/06
+================================================================================
+
+talking about putting it together, by drawing a ton of lines
+
+--------------------------------------------------------------------------------
+Bresenham's line algorithm in hardware
+
+continuous line in discrete world
+
+less than 45deg
+  choose block on the vertical with smallest error (fp)
+  but how, without costly fp?
+
+use ints to encode
+
+algo from wikipedia
+
+first did it in C
+
+create a datapath repr
+
+write a timing diagram
+write an FSM
+
+and also include a buffer
+
+huh, originally a pen-plotter
+
+doop
