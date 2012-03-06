@@ -1,0 +1,199 @@
+Quantum Computing
+lecture #15
+2012/03/06
+================================================================================
+
+midterm:
+4 questions, choose 3
+you're going to be just fine
+go over the highlights quickly
+broken down the problems seen in the exam, see it today
+what we see today is pretty much what we'll see on the exam
+
+categories:
+----------------------------------------
+linear algebra
+ - tensor products
+ - <|> dot products
+   |><| outer products
+   etc
+ - see problem set 5
+ - ex. problem <101|010> = <1|0><0|1><1|0> = 0
+ - ex. (A\tensor B)|\psi_1>|\psi_2> = A|\psi_1> B|\psi_2>
+
+----------------------------------------
+single qubit gates
+
+X, Y, Z  // pauli
+S, T
+R_x, R_Y, R_Z
+
+all written elsewhere
+
+----------------------------------------
+Multiple qubit gates
+
+CNOT  // important: how we get entanglement
+Toffali gate
+C^N(U)|i>|j> = |i> U^i |j>
+or, multiple targets
+C|c>|i> \foreach |t> = |i> \foreach C^c |t>
+
+Circuits
+
+see p175, ex 4.2, for a good example
+  e^(i x A) = cos(x) I + i sin(x) A, if A^2 = I
+  XY = -YX  // we'll work this later
+p177: MOAR identities
+  exercise 4.13: HXH = Z
+
+----------------------------------------
+Measurement
+
+don't worry about complicated measurements
+ - do know something about it, though
+take what you know about projected measurements, freeze them for afterwards
+
+--------------------------------------------------------------------------------
+Examples
+
+----------------------------------------
+Example 1
+  PAGE 12, FIGURE 1: circuit, applies CNOT, C(Y), C(Z), measure
+
+1. Find the matrix
+Technically, C(Z) C(Y) CNOT will work
+but, we usually just push enumerate states (linear circuit)
+
+|00> -> CNOT -> |00> -> C(Y) -> |00> -> C(Z) -> |00>
+  column: [1 0 0 0]^t
+|01> -> CNOT -> |01> -> C(Y) -> i|11> -> C(Z) -> -i|11>
+  column: [0 0 0 -i]^t
+|10> -> CNOT -> |11> -> C(Y) -> -i|01> -> C(Z) -> -i|01>
+  column: [0 -i 0 0]^t
+|11> -> CNOT -> |10> -> C(Y) -> |10> -> C(Z) -> |10>
+  column: [0 0 1 0]^t
+
+2. find the probabilities
+|\psi^in> = a_00|00> + a_01|01> + a_10|10> + a_11|11>
+          -> circuit ->
+|\psi^out> = a_00|00> - i a_01|11> - i a_10|01> + a_11|10>
+
+outcomes?       probability     collapsed state
+----------------------------------------
+0 (00)          |a_00|^2        |00>
+1 (01)          |a_10|^2        |01>
+2 (10)          |a_11|^2        |10>
+3 (11)          |a_01|^2        |11>
+
+
+----------------------------------------
+Example 2
+  PAGE 12, FIGURE 2: circuit, applies toffoli, H/X/X, measurement
+
+1. find the output for |111>
+|111> ->Tof>- |110> ->H\tensor X\tensor X>- H|1>|0>i|1> =
+  i(|001>-|101>)/\sqrt{2}
+  column: [0 i/\sqrt{2} 0 0 0 -i/\sqrt{2} 0 0]
+
+probabilities for the output
+p_0 = 0
+p_1 = 1/2
+p_2 = 0
+p_3 = 0
+p_4 = 0
+p_5 = 1/2
+p_6 = 0
+p_7 = 0
+
+----------------------------------------
+Example 3: queries
+ f{0..2^n-1} -> {0,1}
+
+assume n=2, f(j) = {[j=0,2]: 0, [j=1,3]: 1}[j]
+
+|\psi^in> = |1101>
+-> C-U_f >-
+  |1>U_f|101> = |1>|10>|1\xor f(10)> = |1>|10>|1>
+  // U_f|1>|j> = |i>|j\xor f(i)>, U_f acts on i (2 qubits)
+-> H\tensor Y\tensor X\tensor Y >-
+  H|1> Y|1> X|0> Y|1> = (|0>-|1>)/2^.5 (-i)|0> |1> (-i)|0>
+  = (-|0010>+|1010>)/2^.5
+
+measure the 1st qubit (outcomes/probability?)
+outcome probability
+0       1/2
+1       1/2
+
+measure the 3rd qubit?
+outcome probability
+0       0
+1       1
+
+----------------------------------------
+talking about deustch
+  PAGE 13, FIGURE 4: deustch circuit again
+
+(-1)^f(0) H|1>
+
+check at home: see what happens when you put different |\psi_in> into it
+  maybe try f as xor function
+  f(0) \xor f(1) (?)
+
+----------------------------------------
+Exercise 4
+
+True?
+e^{2\pi i (H\tensor Z)} = I
+
+true!
+e^{2\pi i (H\tensor Z)} = cos(2\pi) I + i sin(2\pi) (H\tensor Z) = I
+confirm (H\tensor Z)^2 = H^2\tensor Z^2 = I\tensor I = I
+
+see exercise 4.2
+
+----------------------------------------
+Exercise 5
+
+Show:
+X R_y(\theta) X = R_y(-\theta)
+
+okay, how can we do it without doing the entire matrix multiply?
+possibility: break X into rotations. faster way
+
+use e^(i x A):
+X e^(-i \theta/2 Y) X
+= X ( cos(\theta/2) I - i sin(\theta/2) Y ) X
+= ( cos(\theta/2) I - i sin(\theta/2) XYX )  // XY = -YX
+= ( cos(\theta/2) I + i sin(\theta/2) YXX )
+= ( cos(\theta/2) I + i sin(\theta/2) Y )
+= ( cos(\theta/2) I - i sin(-\theta/2) Y )
+= e^(-i (-\theta/2) Y)
+= R_y(-\theta)
+
+or
+X R_Y(\theta) = R_y(-\theta) X
+apply double hermitian to one side
+
+
+one of next 2 problems in exam?
+----------------------------------------
+Problem 1
+
+build circuit
+
+copy qubit
+|\psi>|0> -> CIRC >- |\psi>|\psi>
+\psi = {|+>, |->}
+  // does not violate no-cloning theorem
+
+----------------------------------------
+Problem 2
+
+build circuit
+
+|\psi_in> = |000>
+|000> -> CIRC >-|\psi_out> = (|010>-|101)/2^.5
+
+remember:
+it's open book, open note, open internet, open library
