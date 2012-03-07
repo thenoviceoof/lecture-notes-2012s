@@ -1,0 +1,95 @@
+PLT
+2012/03/07
+#15
+================================================================================
+
+Talking about types
+
+Outline
+ - semantic analysis
+ - types
+
+int are a finite set, derp
+
+--------------------------------------------------------------------------------
+semantic analysis
+
+var x
+l(x) - address of x
+r(x) - value stored in x
+
+all sorts of questions you can ask about it:
+ - What kind of value is stored in x?
+ - How big is x?
+ - Who is responsible for allocating space for x?
+ - Who is responsible for initializing x?
+ - How long must the value of x be kept?
+ - If x is a procedure, what kinds of arguments does it take and what kind of
+   return value does it have?
+
+--------------------------------------------------------------------------------
+purpose of types in programming languages?
+ - ascribe meaning to programs
+ - catch errors
+ - ease of programming
+ - compliation/optimization
+I'm dubious about some of these
+
+ex. basic types of C
+ - int
+ - char
+ - float
+ - enum
+ - void
+derp
+
+and derived types (struts, arrays, functions, etc)
+
+----------------------------------------
+Type system
+
+TE -> basictype
+    | type_constructor(TE)
+
+example type expression:
+struct Node {
+  int value;
+  struct Node *left;
+  struct Node *right;
+}
+
+type expression tree for Node:
+Node = Record
+(Node (x (x (x value int)
+            (x left (ptr Node)))
+         (x right (ptr Node))))
+why is this a tree, idk
+x's are cross products
+
+structural vs. name equivalence
+ - structure of derived type, or the label slapped on the type(?)
+
+type compatibility
+
+type inference
+operator overloading
+
+interesting: type expressions in ML, can use type inference to map any
+list type to an integer
+
+fun length(x) = 
+  if null then 0 else tail(x)+1
+\forall\alpha list(\alpha) -> int
+
+type inference? Hindley–Milner
+
+Lexer -> syntax -> semantic -> ICG (intermediate code gen) -> ...
+
+talking about static vs. dynamic typing
+
+and talking about function overloading again, probably should've
+skipped this class
+
+and now talking about type conversions
+
+okay, breaking now
