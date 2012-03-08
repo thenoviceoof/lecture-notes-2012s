@@ -1,0 +1,127 @@
+\documentclass[twocolumn]{article}
+
+\usepackage{fullpage}
+\usepackage{sectsty}
+\usepackage{amssymb}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage{braket}
+
+\sectionfont{\normalsize}
+\subsectionfont{\normalsize}
+
+\begin{document}
+
+% math stuff ----------------------------------------
+\section{Math}
+
+\begin{eqnarray*}
+A \otimes B = [A_1 B, A_2 B ... ] \\
+(A \otimes B)\ket{ij} = A\ket{i} \otimes B\ket{j} \\
+(\bra{\psi})^H = \ket{\psi} \\
+|| M\ket{\psi} ||^2 = \bra{\psi} M^H | M \ket{\psi} \\
+e^{i x A} = \cos(x) I + i \sin(x) A, \mbox{ if } A^2 = I \\
+\end{eqnarray*}
+
+Remember the complex conjugate.
+
+\subsection{Unitary-ness}
+
+\begin{itemize}
+\item $U^H U = I$
+\item Column vectors are orthonormal
+\item Full rank
+\end{itemize}
+
+Unitary means normal, but not necessarily vice-versa
+
+\subsection{Diagonalization}
+
+If $U$ is normal, and $\lambda_i$ are eigenvalues and $v_i$ are eigenvectors
+
+\begin{equation}
+U = \sum_i \lambda_i \ket{v_i}\bra{v_i}
+\end{equation}
+
+
+
+% Gates ----------------------------------------
+\section{$2\times 2$ Gates}
+
+\begin{eqnarray*}
+X = \ket{1}\bra{0} + \ket{0}\bra{1} \\
+Y = i\ket{1}\bra{0} -i\ket{0}\bra{1} \\
+Z = \ket{0}\bra{0} - \ket{1}\bra{1} \\
+S = \ket{0}\bra{0} + i \ket{1}\bra{1} \\
+  = \sqrt{Z} \\
+T = \ket{0}\bra{0} + e^(i\pi/4) \ket{1}\bra{1} \\
+  = \sqrt{S} \\
+R_{x,y,z} = e^{-i\theta \{X, Y, Z\}/2} \\
+        = \cos(\theta/2)I - i \sin(\theta/2)\{X,Y,Z\} \\
+R_x = \left[ \begin{array}{cc}
+\cos(\theta/2) & -i\sin(\theta/2) \\
+i\sin(\theta/2) & \cos(\theta/2) \\
+\end{array} \right] \\
+R_y = \left[ \begin{array}{cc}
+\cos(\theta/2) & -\sin(\theta/2) \\
+\sin(\theta/2) & \cos(\theta/2) \\
+\end{array} \right] \\
+R_z = \left[ \begin{array}{cc}
+\cos(\theta/2)-i\sin(\theta/2) & 0 \\
+0 & \cos(\theta/2) + i\sin(\theta/2) \\
+\end{array} \right] \\
+H^{\otimes n} = \frac{1}{2^{n/2}} \sum_{j,k=0}^{2^n-1} (-1)^{j\cdot k} \ket{j}\bra{k}
+\end{eqnarray*}
+
+% moar gates ----------------------------------------
+\section{Multi-qubit gates}
+
+\begin{eqnarray*}
+\mbox{CNOT} = \left[ \begin{array}{cc}
+I_{2\times 2} & 0 \\
+0 & X \\
+\end{array} \right] \\
+\mbox{Toffali}|ijk> = \ket{ij}X^{i\cdot j}\ket{k} \\
+  = \ket{ij}\ket{k\oplus ij} \\
+% add a few more?
+\end{eqnarray*}
+
+
+% measurement ----------------------------------------
+\section{Measurement}
+
+\begin{eqnarray*}
+M_i = \ket{i}\bra{i} \otimes I \\
+p(i) = || M_i\ket{\psi} ||^2 \\
+\ket{\psi_i} = \frac{M_i\ket{\psi}}{\sqrt{p(i)}}
+\end{eqnarray*}
+
+
+% queries ----------------------------------------
+\section{Queries}
+
+With $f: \{0 .. 2^n - 1\} \rightarrow \{0,1\}$
+
+\begin{eqnarray*}
+U_f\ket{ij} = \ket{i}\ket{j\oplus f(i)} \\
+U_f = \left[ \begin{array}{ccc}
+  X^{f(0)} & 0 & 0 ... \\
+  0 & X^{f(1)} & 0 ... \\
+  0 & 0 & X^{f(2)} ... \\
+\end{array} \right]
+\end{eqnarray*}
+
+With $f: \{0 .. 2^n - 1\} \rightarrow \{0 .. 2^m - 1\}$, and $\ket{i},
+\ket{j}$ multi qubits:
+
+\begin{eqnarray*}
+U_f\ket{ij} = \ket{i}\ket{j\oplus f(i)} \\
+A_p |j> = \ket{p\oplus j} \\
+U_f = \left[ \begin{array}{ccc}
+  A_{f(0)} & 0 & 0 ... \\
+  0 & A_{f(1)} & 0 ... \\
+  0 & 0 & A_{f(2)} ... \\
+\end{array} \right]
+\end{eqnarray*}
+
+\end{document}

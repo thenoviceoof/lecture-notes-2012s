@@ -50,7 +50,7 @@ hard thing is extracting the info from these output qubits
   and that's what we're going to see today
 
 --------------------------------------------------------------------------------
-Deutsch's ALgorithm
+Deutsch's Algorithm
 
 f:{0,1} -> {0,1}
 How do we compute f(0)\xor f(1)
