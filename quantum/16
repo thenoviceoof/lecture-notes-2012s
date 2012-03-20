@@ -1,0 +1,195 @@
+Quantum Computing
+lecture #16
+2012/03/20
+================================================================================
+
+talking about how we're going to be studying the fourier transform
+
+--------------------------------------------------------------------------------
+Review
+
+Deutsch-Josza Algorithm
+f:{0 .. 2^(n-1)} -> {0,1}
+  is constant if f(1) = 0 only for i\in {0 .. 2^(n-1)}
+              or f(1) = 1 only for i\in {0 .. 2^(n-1)}
+  is balanced iff |{i:f(i)=0}| = |{i:f(i)=1}|
+                  |A_0| = |A_1|  // different notation
+                  // half the values are 0, half are 1
+
+STATEMENT:
+given constant or balanced function f
+  determine if f is constant, or balanced
+
+quantum algorithm
+  PAGE X, FIGURE 2: illustration of the circuit
+
+do a query!
+
+before measurement:
+|\psi> = \sum{k=0}^{2^n-1} (1/2^n \sum_{j=0}^{2^n-1} (-1)^f(j) (-1)^(j\cdot k))
+         |k> H|1>
+
+Look at a_0 (amplitude of |0...0>):
+a_0 = 1/2^n \sum_{j=0}^{2^n-1} (-1)^f(j)
+    = {if f is constant: \pm 1,
+       if f is balanced: 0}
+
+so if we measure the top qubit
+  if f is constant, get outcome 0 with p = 1
+    because |a_k|^2 = 0 for k != 0, so all the probability goes to a_0
+    a_0 = \pm 1, so collapses to |0>
+  if f is balanced, get anything but 0
+    if we get any of the other 1 -> 2^n-1 outcomes, it's balanced
+
+Class files:
+  ion trap implementation of Deustch-Josza
+  quantum algorithms revisited?
+
+--------------------------------------------------------------------------------
+Quantum Fourier Transform (fuck yeah!)
+
+----------------------------------------
+first, Classical
+
+Discrete Fourier Transform
+Input: x_0..N-1
+Output: y_0..N-1
+  y_k = 1/\sqrt{N} \sum_j=0^N-1 x_j e^(2\pi i j k/N)
+cost: O(N^2)
+
+Fast Fourier Transform (Cooley-Tuckey)
+O(N lg(N))
+
+----------------------------------------
+Quantum
+
+F|j> = 1/\sqrt{N} \sum_k=0^N-1 e^(2\pi i j k/N) |k>
+
+F(\sum x_j|j>)
+ = \sum_j=0^N-1 x_j F|j>
+ = \sum_j 1/\sqrt{N} \sum_k e^(2\pi i j k/N) |k>
+ = \sum_k ( 1/\sqrt{N} \sum_j e^(2\pi i j k/N) ) |k>
+ = \sum_k y_k |k>
+
+--------------------
+What's the matrix F?
+  look at F|j>
+F|0> = 1/\sqrt{N} [1 1 ... 1]^T
+F|1> = 1/\sqrt{N} [1 e^(2\pi i 1/N) ... e^(2\pi i (N-1)/N)]^T
+F|2> = 1/\sqrt{N} [1 e^(2\pi i 2/N) ... e^(2\pi i 2(N-1)/N)]^T
+...
+F|N-1> = 1/\sqrt{N} [1 e^(2\pi i (N-1)/N) ... e^(2\pi i (N-1^2)/N)]^T
+
+F = 1/\sqrt{N} [ e^{2\pi i (j k)/N} ]_j,k
+
+eg: F|0> = 1/\sqrt{N} \sum_k |k>
+
+--------------------
+is F unitary?
+  show F^H F = I
+F^H = 1/\sqrt{N} [ e^{-2\pi i (j k)/N} ]_j,k
+(p,q) entry of F^H F?
+  (p row of F^H)(q col of F)
+  = 1/N \sum_k^N-1 e^{-2\pi i (p k)/N} e^{2\pi i (k q)/N}
+  = 1/N \sum_k^N-1 e^{-2\pi i k/N (q-p)}
+if p==q: 1  // diag entries
+else:
+  // take the last term and factor, minus the first term (?)
+  e^{2\pi i (N-1)(q-p)/N} e^{2\pi i (q-p)/N} - 1
+  = e^{2\pi i (q-p)/N} - 1
+  // since q-p is int, 2/pi int means 1
+  = 0  // non-diag entries
+
+----------------------------------------
+Implement F efficiently
+express F|j> in tensor product form
+proposition: 
+  N = 2^n, j=0..N-1
+  F|j> = (|0> + e^(2\pi i j_n) |1>)/\sqrt{2} \tensor 
+         (|0> + e^(2\pi i j_n-1 j_n) |1>)/\sqrt{2} \tensor ... \tensor
+         (|0> + e^(2\pi i j_1 ... j_n) |1>)/\sqrt{2}
+
+motivation:
+  |j> = |j_1..j_n>
+  // ugh, missed this, sorry
+  j/2 = j_n
+  j/2^2 = j_n j_n-1 (why? dunno)
+  // special notation:
+  \cdot j_1 j_2 = j_1/2 + j_2/4  // etc
+  e^(2\pi i j/2) = e^(2\pi i (j_1..j_n)) = e^(2\pi i j_n)
+  // not sure if he's using some special syntax?
+
+--------------------
+Proof:
+F|i> 
+ = 1/\sqrt{N} \sum_k e^(2\pi i (j k)/N) |k>
+   // switch to bitwise k
+ = 1/\sqrt{N} \sum_k e^(2\pi i (j (2^n k_1 .. k_n)/2^n)/N) |k_1>..|k_n>
+ = 1/\sqrt{N} \sum_k_1 ... \sum_k_n
+   e^(2\pi i j k_1/2)..e^(2\pi i j k_n/2^n)  |k_1>..|k_n>
+ = 1/\sqrt{N} \sum_k_1 e^(2\pi i j k_1/2) |k_1> ...
+              \sum_k_n e^(2\pi i j k_n/2^n) |k_n> ...
+ = 1/\sqrt{N} \tensor_l=0^n ( \sum_k_1 e^(2\pi i j k_l/2^l) |k_l> )
+
+we got our tensor product form, but we need to interpret it
+examples:
+l = 1: |0> + e^(2\pi i j 1/2) |1> = |0> + e^(2\pi i j_n) |1>
+l = 2: |0> + e^(2\pi i j 1/2^2) |1> = |0> + e^(2\pi i j_n-1 j_n) |1>
+...
+l = n: |0> + e^(2\pi i j 1/2^n) |1> = |0> + e^(2\pi i j_1 ... j_n) |1>
+
+hence, it is shown
+--------------------
+
+definition:
+R_k = [[1 0] [0 e^(2\pi i 1/2^k)]]
+examples:
+R_0 = I
+R_1 = Z
+R_2 = S
+R_3 = T
+R_4 = etc
+OMG ROTATIONS
+so, for the fourier stuff: cost of the algo is due to fourier
+
+|j_1> -> H -> R_2 -> ... -> R_N ->
+|j_2> -> H -> R_2 -> ... -> R_N-1 ->
+|j_3> -> H -> R_2 -> ... -> R_N-1 ->
+...
+
+PAGE 13, FIGURE 1: helpful illustration of the circuit
+so, each R_j gate is controlled by successive qubits underneath it
+
+look at the first qubit in isolation
+After H:
+  (|0> + e^(2\pi i j_1)|1>)/sqrt{2}
+  e^(2\pi i j_1) = {j_1=0: 1, j_1=1: -1}
+After Ctl-R_2:
+  (R_2^j_2 |0> + e^(2\pi i j_1) R_2^j_2 |1>)/sqrt{2}
+  = (|0> + e^(2\pi i j_1) R_2^j_2 |1>)/sqrt{2}
+  = (|0> + e^(2\pi i j_1) e^(2\pi i j_2/2^2) |1>)/sqrt{2}
+  = (|0> + e^(2\pi i \cdot j_1 j_2)|1>)/sqrt{2}
+AFter Ctl-R_3:
+  (R_3^j_3 |0> + e^(2\pi i \cdot j_1 j_2) R_3^j_3 |1>)/sqrt{2}
+  = (|0> + e^(2\pi i \cdot j_1 j_2 j_3)|1>)/sqrt{2}
+etc, until 1st qubit:
+  (|0> + e^(2\pi i \cdot j_1 ... j_n)|1>)/sqrt{2}
+
+then, 2nd qubit:
+  (|0> + e^(2\pi i \cdot j_2 ... j_n)|1>)/sqrt{2}
+then, nth qubit:
+  (|0> + e^(2\pi i \cdot j_n)|1>)/sqrt{2}
+
+this leads to:
+  |\psi> = \tensor_l=1^n (|0> + e^(2\pi i \cdot j_l .. j_n)|1>)/sqrt{2}
+so we need to swap the qubits to get F|j>
+need n/2 swaps, not too bad
+
+what's the cost?
+# gates
+1st qubit -> 1 H, n R's
+2nd qubit -> 1 H, (n-1) R's
+  total gates = O(n^2)
+  + n/2 swaps = O(n^2) + O(n) = O(n^2)
+substitute N
+  O(N lg N) = O(2^n n)
