@@ -115,7 +115,8 @@ motivation:
   j/2 = j_n
   j/2^2 = j_n j_n-1 (why? dunno)
   // special notation:
-  \cdot j_1 j_2 = j_1/2 + j_2/4  // etc
+  // it's a PERIOD, as in digits after a decimal point
+  .j_1 j_2 = j_1/2 + j_2/4  // etc
   e^(2\pi i j/2) = e^(2\pi i (j_1..j_n)) = e^(2\pi i j_n)
   // not sure if he's using some special syntax?
 
