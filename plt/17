@@ -1,0 +1,71 @@
+PLT
+2012/03/21
+#17
+================================================================================
+
+got in 40 minutes late, derp
+
+midterm, March 28th (in a week, fuck)
+
+Talking about procedure calls
+ - design
+ - implementation
+
+also, talking about macros
+
+call by value  // used in C/Java
+call by reference
+call by name
+
+procedure design
+ - param passing method
+ - type checking params
+ - local variables statically or dynamically allocated?
+ - can procedures nest?
+ - can procedure names be passed as params?
+ - procedure overloading?
+
+--------------------------------------------------------------------------------
+Implementation
+
+procedure f calls g(x,y)
+call compiler must generate code to:
+ 1. save the execution state of f
+ 2. compute and pass parameters x and y
+ 3. pass the return address
+ 4. transfer control to g
+on return:
+ 1. place return value available to f
+ 2. restore execution state of f
+ 3. transfer control back to f
+
+storage allocation strategies
+
+static allocation
+ - storage for all data objects laid out at compile time
+ - names are bound to storage at compile time
+
+stack allocation
+ - run time is organized as a stack
+ - illustate the data layout:  [code, static data, heap-> <-stack]
+ - activation records (AR)(?) are pushed+popped on the stack as procedures begin
+   and end
+  an activation record is:
+   - actual params
+   - return values
+   - control link
+   - access link
+   - local data
+   - temporaries
+
+heap allocation
+ - necessary for long-lived structures (past end of procedure)
+   ex. malloc
+
+Activation trees
+give us a picture of which functions are invoked at runtime
+
+for instance, euler's method
+(main
+  (scanf)
+  (printf (gcd[15,10] (gcd[10,5] (gcd[5,0] .)))
