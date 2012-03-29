@@ -1,0 +1,140 @@
+Quantum Computing
+lecture #18
+2012/03/27
+================================================================================
+
+30 minutes late, fuck
+
+Today:
+\phi = 0.\phi_1...\phi_t...
+int b \in [0, 2^t-1]
+such that b/2^t best appprox of \phi, and (b < \phi)
+b/2^t = 0.b_1...b_t
+b_1 = \phi_1
+...
+b_t = \phi_t
+
+0 <= \phi - b/2^t <= 1/2^t
+
+
+and now, trying to find out what is going on.
+***
+***
+----------------------------------------
+2nd change of variable
+
+ = \sum_{l=-2^(t-1)+1}^{2^(t-1)} 1/2^t \sum_{j=0}^{2^t-1}
+   e^{2\pi i j(\phi-(b+l)/2^t)}
+
+***
+----------------------------------------
+Allow error |m-b| <= e
+
+Find
+Probability{ |m-b| > e } = Pr{ m-b > e } + Pr{m-b < -e}
+ = Pr{m-b >= e+1} + Pr{ m-b <= -(e+1) }
+ = \sum_{l'=e+1}^{2^(t-1)} |a_l'|^2 + \sum_{l'=-2^(t-1)+1}^{-(e+1)} |a_l'|^2
+
+a_l' = 1/2^t \sum_{j=0}^{2^t-1} e^{2\pi i j(\phi-(b+l')/2^t)}
+ = 1/2^t \sum_{j=0}^{2^t-1} e^{2\pi i j(\delta  - l'/2^t)}
+   // \phi = \delta + b/2^t
+ = 1/2^t (e^{2\pi i(\delta-l'/2^t)2^t}-1)/(e^{2\pi i(\delta-l'/2^t)}-1)
+|a_l'| <= 1/2^t 2/|(e^{2\pi i(\delta-l'/2^t)}-1)|
+   // where |e^{i\theta} - 1| <= 2 \forall \theta \in R
+
+----------------------------------------
+Lemma 1:
+
+\theta = 2\pi(\delta - l'/2^t)
+  0 <= \delta <= 1/2^t
+  \theta \in [-\pi, \pi]
+
+Proof:
+
+-2^(t-1) + 1 <= l' <= 2^(t-1)
+-2^(t-1)/2^t <= -l'/2^t <= (2^(t-1) - 1)/2^t
+-1/2 <= -l'/2^t <= 1/2 - 1/2^t
+-1/2 <= \delta-1/2 <= \delat - l'/2^t <= \delta + 1/2 - 1/2^t <= 1/2
+
+hence:
+2\pi(\delta - l'/2^t) \in [-\pi, \pi]
+
+----------------------------------------
+Lemma 2:
+
+|e^{i\theta} - 1| >= 2/\pi |/theta|
+  // \theta \in [-\pi,\pi]
+
+Proof:
+
+|e^{i\theta} - 1| = |cos(\theta) + i \sin(\theta) - 1|
+ = \sqrt{(cos(\theta)-1)^2 + \sin^2(\theta)}
+ = \sqrt{1-2\cos(\theta)+\cos^2(\theta)+\sin^2(\theta)}
+ = \sqrt{2-2\cos(\theta)}
+ = \sqrt{2}\sqrt{1-cos(\theta)}
+ = \sqrt{2}\sqrt{2\sin^2(\theta/2)}
+ = 2|\sin(\theta/2)|
+ = 2\sin(|\theta|/2)
+
+a = |\theta|/2 \in [0,\pi/2]
+\sin a >= 2\pi a
+2\sin(|\theta|/2) >= 2|\theta|2/(2\pi) = 2\pi|\theta|
+  // use a trig approximation
+
+|a_l'| <= 2/(2^t |e^(i 2\pi(\delta-l'/2^t)) - 1|)
+       <= 1/2^t 2/(2 |2\pi (\delta-l'/2^t))|)
+       = 1/|2 (2^t\delta-l')|)
+
+----------------------------------------
+go back a few sections
+
+Allow error |m-b| <= e
+
+Find
+Probability{ |m-b| > e } = Pr{ m-b > e } + Pr{m-b < -e}
+ = Pr{m-b >= e+1} + Pr{ m-b <= -(e+1) }
+ = \sum_{l'=e+1}^{2^(t-1)} |a_l'|^2 + \sum_{l'=-2^(t-1)+1}^{-(e+1)} |a_l'|^2
+ // pick right back up here
+ <= 1/4 (\sum_{l'=-2^(t-1)+1}^{-(e+1)} 1/|(2^t\delta-l')|^2 +
+         \sum_{l'=e+1}^{2^(t-1)} 1/|(2^t\delta-l')|^2)
+
+(1st sum) <= \sum_{l'=-2^(t-1)+1}^{-(e+1)} 1/(l')^2
+ = \sum_{l'=e+1}^{2^(t-1)+1} 1/(l')^2
+(2nd sum) = \sum_{l'=e+1}^{2^(t-1)} 1/|(l'-2^t\delta)|^2
+ = \sum_{l'=e}^{2^(t-1)-1} 1/|l'+1-2^t\delta|^2
+ <= \sum_{l'=e}^{2^(t-1)-1} 1/(l')^2
+Pr{|m-b|>e} <= \sum 1/(l')^2
+
+// approx using integrals
+\sum_{l'=e}^{2^(t-1)-1} 1/(l')^2 <= \int_{e-1}^{2^(t-1)-1} 1/x^2 dx
+ <= 1/(e-1)
+Pr{|m-b|>e} <= 1/(2(e-1))
+
+Set e = 2^(t-m) - 1
+Pr{|(m-b)/2^t| > (2^(t-1)-1)/2^t} <= 1/(2(2^(t-n)-2))
+ = Pr{|m/2^t - b/2^t| > 1/2^n - 1/2^t}
+ <= 1/(2(2^(t-n)-2)) <= \epsilon // tiny
+
+2^(t-n) - e >= 1/(2\epsilon)
+t-m >= lg(2+1/(2\epsilon))
+
+For n bits of accuracy:
+set t = n+(lg(2+1/(2\epsilon)))
+
+Want n bits of accuracy with probability > 3/4?
+1/(2(e-1)) <= 1/4 = \epsilon
+2^(t-n) - 2 >= 1/(2/4) = 2
+2^(t-n) >= 4
+t-n >= lg(4) = 2
+t = n+2
+
+Want Pr{|\hat\phi - \phi| > 1/2^n}
+  // \hat\phi = m/2^t
+Pr{|\hat\phi - \phi| > 1/2^n} = Pr{ |\hat\phi - b/2^t + b/2^t - \phi| > 1/2^n}
+ <= Pr{|\hat\phi-b/2^t| + |b/2^t-\phi| > 1/2^n}
+ <= Pr{|m/2^t-b/2^t| + 1/2^t > 1/2^n}
+ = Pr{|m/2^t-b/2^t| > 1/2^n - 1/2^t}
+ = Pr{|m-b| > 2^(t-n) - 1}
+this is where e = 2^(t-n) - 1 comes from
+
+He's recapping the day, lots of approximation things today
