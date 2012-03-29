@@ -1,0 +1,232 @@
+Quantum Computing
+lecture #19
+2012/03/29
+================================================================================
+
+Quiz - Tuesday April 10th, after hw is due
+
+on phase estimation
++ will also be in the final
+
+algorithms coming up are applications of phase estimation
+
+look at figure 5.2 in the book
+
+--------------------------------------------------------------------------------
+Review
+
+Performance of phase estimation
+error, probability of success
+
+\phi = .\phi_1 ... \phi_t... \in [0,1)
+|\phi-\hat\phi| <= 2^-n
+\hat\phi = m/2^t
+
+Pr{|\phi-\hat\phi| > 2^-n}
+ <= Pr{|b/2^t - m/2^t| > (2^(t-n)-1)/2}
+ <= 1/(2(2^(t-n)-2))
+ = \epsilon
+// \epsilon is probability of failure
+
+t = n + ceil[log(2 + 1/(2\epsilon))]
+// hence, success probability >= 1-\epsilon
+
+n = 10 bits, \epsilon = 1/4
+t = n + log(4) = n + 2 = 12
+use 12 bits
+
+----------------------------------------
+Problem
+
+U = (2^k 2^k), |n>
+\lambda = e^(2\pi i \phi)
+
+phase estimation to find \hat\phi = m/2^t:
+|\phi-\hat\phi| <= 2^-n   // w/ high probability
+
+error for lambda?, \hat\lambda = e^(2\pi i\hat\phi)
+|\lambda - \hat\lambda| <= ???
+
+NOTE: look at this
+
+quote: you will enjoy the flight
+
+--------------------------------------------------------------------------------
+Applications of phase estimation (1,2)
+
+outline:
+  Order finding
+  factoring
+  // both shor's algorithms
+
+--------------------------------------------------------------------------------
+Order finding
+
+Given N, x, positive integers where x < N
+N,x are co-prime
+  there is no common divisor
+  gcd(x,N) = 1
+
+quote: you were using an inside voice
+
+Define:
+  the order of x % N is the least + int r : x^r = 1(mod N)
+  // oh god, my old enemy, the mod
+Examples:
+  x=1, r=1 // trivial
+  x=2, N=5 : r=4, 2^4 = 1(mod 5)
+  x=5, N=21 : r=6, 5^6 = 1(mod 21)
+
+looks like fermat's theorem? (noted by class)
+
+----------------------------------------
+Lemma
+
+The order of x(mod N) is (< N)
+
+Proof:
+Look at k=1..N
+x^k = l_k N + r_k  // r_k \in {0..N-1}
+  Claim that all r_k != 0
+Proof by contradiction:
+Assume for some k, r_k=0. Let this be the first such k
+  x^(k-1) = l_{k-1} N + r_{k-1}
+  x^k = x l_k N + x r_{x-1}
+but N|x^r, r_k=0
+  either N|x r_{k-1}
+  or x r_{k-1} = 0
+but x != 0, r_{k-1} != 0
+
+We have N r_k's in the range {1..N_1}
+So two of them must be equal (pigeon hole principle)
+  r_k = r_p
+x^k = l_k N + r_k
+x^p = l_p N + r_p
+x^p(x^(k-p)-1) = x^k - x^p = (l_k - l_p) N
+  2 cases:
+  #1.
+    l_k = l_p
+    x^p(x^(k-p)-1) = 0
+    x^(k-p)-1 = 0
+    x^(k-p) = 1(mod N)
+  #2.
+    N|x^p(x^(k-p)-1) and N\not|x^p
+    N|x^(k-p)-1
+    x^(k-p) -1 = 0(mod N)
+    x^(k-p) = 1(mod N)
+
+So r the order r <= k-p < N
+ // where r is the least exponent
+
+Classically:
+  no algorithm we know that solves the problem with poly(log N)
+Quantum:
+  phase estimation computes the result using poly(log N) qubits/gates
+  w/ prob >= 1-\epsilon
+
+// talking about encryption: how we don't know if we can really crack
+// encryption(?)
+
+----------------------------------------
+Phase estimation unitary matrix
+
+What's our unitary matrix for phase estimation
+
+L = ceil(lg N)
+// 2^L >= N
+
+Unitary Matrix U of PE (phase estimation)
+
+// let y \in {0..2^(L-1)}
+
+U |y> = { y\in{0..N-1}: |x * y(mod N)>,
+          y\in{N..2^{L-1}}: |y> }
+first case is the one we're concerned about
+
+--------------------
+example:
+x = 2, N=5, L=3
+
+U|0> = |0>
+U|1> = |2 * 1> = |2>
+U|2> = |4>
+U|3> = |1>
+U|4> = |3>
+// y >= N, don't care past this point
+U|5> = |5>
+
+write out the matrix
+U =
+[1 0 0 0 0 | 0 0 0
+ 0 0 0 1 0 | 0 0 0
+ 0 1 0 0 0 | 0 0 0
+ 0 0 0 0 1 | 0 0 0
+ 0 0 1 0 0 | 0 0 0
+ -----------------
+ 0 0 0 0 0 | 1 0 0
+ 0 0 0 0 0 | 0 1 0
+ 0 0 0 0 0 | 0 0 1]
+
+U = [[P_{NxN} 0]
+     [0 I_{2^{L-1}-N,2^{L-1}-N}]]
+show P is a permutation matrix, show it's nonsingular
+P has columns with a single 1, and all other (column) entries 0
+
+To show that P is a permutation matrix we need to show that no two
+columns have the 1 in the same row
+=> P non-singular
+
+U is unitary
+I = U^H U
+ = [[P 0][0 I]]^H [[P 0][0 I]]
+ = [[P^H*P 0][0 I]]
+
+P^H P = I -> then P is a permutation matrix
+
+Note: b(int) is the inverse of x (mod N) if (b x = 1(mod N))
+ex:
+N=5, x=2, b=3
+N=4, x=2, b=??? // no such b
+
+Number Theory:
+if gcd(x,N) = 1
+then there exists inverse of x(mod N)
+
+Need to show that P is 1-to-1
+(x y_1)(mod N) = (x y_2)(mod N)  // two cols with 1 in the same row
+x^-1 (x y_1)(mod N) = x^-1 (x y_2)(mod N) 
+y_1 = y_2(mod N) 
+y_1 = y_2
+// so it's always the same row, same col
+
+--------------------------------------------------------------------------------
+hint about #2 in the homework (#4)
+
+Convolution theorem:
+a_0..N
+\b_0..N
+\g_0..N
+\d_0..N
+// let F be the fourier transform
+F(\sum_j^{N-1} a_0|j>) = \sum_k \g_k |k>
+  where \g_k = 1/\sqrt{N} \sum_j a_j e^(2\pi i j k/N)
+  // we're appyling the discrete fourier transform (F^H)
+F(\sum_j^{N-1} \b_0|j>) = \sum_k \d_k |k>
+  where \d_k = 1/\sqrt{N} \sum_j \b_j e^(2\pi i j k/N)
+
+The same holds of we go backwards (F^H)
+F^H(\sum_k \g_k |k>) = \sum_k a_k |k>
+  where a_k = 1/\sqrt{N} \sum_j \g_j e^{-2\pi i j k/N}
+F^H(\sum_k \d_k |k>) = \sum_k \b_k |k>
+  where \b_k = 1/\sqrt{N} \sum_j \d_j e^{-2\pi i j k/N}
+
+So what's the convolution theorem?
+1/\sqrt{N} \sum_j^{N-1} \sum_l^{N-1} a_j \b_{j-l} |j>
+ ?=
+F^H( \sum_j^{N-1} \g_j \d_j |j> )
+
+start plugging in \b_{j-l} (from earlier definition}
+\b_{j-l} = 1/\sqrt{N} \sum_k \d_k e^{-2\pi i(j-l)k/N}
+go slowly, keep control of the indicies
+
+look at the programming part, ask questions
