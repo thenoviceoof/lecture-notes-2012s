@@ -1,0 +1,156 @@
+DDM
+Lecture #9
+2012/04/02
+================================================================================
+
+Got to class early for once. damn.
+
+supposed to be a guest lecturer, but pushing that off
+
+--------------------------------------------------------------------------------
+Recommendation systems
+
+amazon - one of the first
+simple things work pretty well (ex. 1998)
+
+ex.
+other people watched...
+netflix (big in 2004)
+
+being transparent is good, users like it
+ex. netflix tries to personalize recommendations
+  why that particular rec? because of this, this, this...
+
+ex. netflix prize
+cinematch
+  it's pretty simple, but even getting that simple thing into production is hard
+ha, potential winners were seperated by %0.01 and 20 minutes
+
+content-based methods
+ - what's the movie? is it the same genre? etc
+collaborative methods
+ - users who like this also like...
+
+netflix files:
+userid, movieid, rating, date
+movieid, year, title
+
+Focused on collaborative methods:
+2 approaches
+  memory based (knn)
+  model based (matrix factorization)
+
+--------------------------------------------------------------------------------
+Collaborative Filtering
+
+memory-based model: knn
+
+problem:
+ - given a person
+ - find similar people
+ - and take a local popularity vote among that neighborhood
+
+R = matrix(user x movie)
+explicit:
+ratings, 1-5, or ? for unrated
+implicit:
+views, etc (binary values, or other)
+
+leave out the ? for now
+
+Similarity:
+explicit feedback:
+users u,v
+S_uv = (R_u \dot R_v)/(||R_u|| ||R_v||)
+     // make it explicit
+     = (\sum_i R_ui \dot R_vi) / (sum_i R_ui^2 \sum_j R_vj^2)
+
+implicit feedback:
+How big is the overlap?
+S_uv = |R_u \intersection R_v| / |R_u \union R_v|
+     = (\sum_i R_ui R_vi) / (\sum_i R_ui+R_vi-R_ui*R_vi)
+
+bipartite graph:
+users <-> items
+-> transform to graph with S_uv as edges
+for each user, retain top-k most similar neighbors (according to S_uv)
+
+Predict:
+\hat R_ui = (\sum_v S_uv R_vi) / (\sum_v S_uv)
+
+Practical notes/Catches:
+Computing S_uv efficiently
+ - expect S_uv to be sparse
+
+for each item i:
+    for all pairs of users (u,v) who rated i:
+        compute S_uv (if not already computed)
+can bin users who rated i in linear time
+however, very popular items mean this scales in O(n^2)
+
+when |users| >> |items|,
+flip things around for an "item-based" knn
+S_ij = (R_i\cdot R_j) / (||R_i|| ||R_j||)
+\hat R_ui = (\sum_j S_ij R_uj) / (\sum_j S_ij)
+
+amazon essentially did the "item-based" knn initially
+
+
+--------------------------------------------------------------------------------
+Model Based
+
+R - same as last time (user x items)
+R = (users x topics) * (topics x items)
+P = (users x topics)
+Q = (topics x items)
+R = P * Q
+users are interested in topics, and items fit into certain topics
+P_u, Q_i
+
+define some model:
+b_0 - global average
+b_u - user-specific bias
+b_i - item bias (popular movies +1.0 or something)
+w_ui - p_u \cdot q_i  // from above
+\hat R_ui = b_0 + b_u + b_i + w_ui
+
+Loss function:
+just go back to squared loss
+L = \sum_(u,i) (R_ui - \hat R_ui)^2 +
+    \lambda(\sum_u ||P_u||^2 + \sum_i ||Q_i||^2)
+// the \sum_(u,i) is a sum over observed ratings
+// that sum is also the Singular Value Decomposition over... R_ui?
+\hat R_ui = P Q^T
+
+product of unknowns squared, it's not convex anymore
+we can use an iterative method, Alternating least squares, an optimization
+Alternating least squares:
+hold P fixed, solve Q, then hold Q, solve P, etc
+
+O = \d_P L = \hat P = R Q [Q^T Q + \lambda I]^-1
+0 = \d_Q L = \hat Q = r^T P [P^T P + \lambda I]^-1
+
+another way: stochastic gradient descent
+update after each observation, using:
+ \d_(P_u) L_ui  // approx gradient
+ = -2 \sum_(u,i) (R_ui - \hat R_ui) \d_(P_u) (p_u q_i) + 2\lambda p_u
+// oh crap I'm in over my head
+
+// doing updates
+p_u <- p_u - \nu \d_(p_u) L_ui
+ = p_u + \nu((R_ui - \hat R_ui) \cdot q_i - \lambda p_u)
+ = (1 - \nu\lambda)p_u + \nu(R_ui - \hat R_ui) \cdot q_i
+
+q_i <- (1-\nu\lambda) q_i + \nu(R_ui - \hat R_ui) \cdot p_u
+
+
+--------------------------------------------------------------------------------
+talking about the final project
+
+going through the BellKor paper
+a good paper, should read it, he'll post about it
+
+nice plot showing performance against number of parameters
+
+showing of koala.sandbox.yahoo.com
+koala_techpulse.pdf
