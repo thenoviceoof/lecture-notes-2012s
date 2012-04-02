@@ -1,0 +1,133 @@
+PLT
+2012/04/02
+#19
+================================================================================
+
+Got in 40 minutes late, derp.
+
+Midterm back, don't known my score yet. Probably embarassing.
+
+*Runtime Data Access*
+Outline:
+Bindings
+Activation trees
+Calling sequences
+
+--------------------------------------------------------------------------------
+Activation tree
+
+example C program:
+int x = 2;
+void f(int n) {
+  static int x=1;
+  g(n);
+  x--;
+}
+void g(int m) {
+  int y = m-1;
+  if(y > 0) {
+    f(y);
+    x--;
+    g(y);
+  }
+}
+main() {
+  g(2);
+  return 0;
+}
+
+[main() [g(2) [f(1) [g(1)]] [g(1)]]]
+OR (tree in sexps)
+[main()
+ [g(2)
+  [f(1) [g(1)]]
+  [g(1)]
+ ]
+]
+
+----------------------------------------
+Run time stack
+
+----------
+x:2
+x from f
+----------
+AR (activation record) for main
+// nothing here
+----------
+AR for g(2)
+params:
+    m: 2
+control link -> AR for main
+return address
+temp:
+    y:1
+----------
+AR for f(1)
+params:
+    n:1
+control link -> AR for g(2)
+return address
+----------
+AR for g(1)
+params:
+    m: 1
+control link -> AR for f(1)
+return address
+temp:
+    y:0
+---------- sp (stack pointer)
+Top of the stack
+
+Note: control link is a function pointer (fp)
+or it might not be. this is unclear
+
+--------------------------------------------------------------------------------
+Calling sequences
+
+//this list is in the online notes
+f calls g
+ - eval params of g, push a new AR on the runtime stack
+ - store fp for f as the control link in the AR for g
+ - update fp to point to the AR for g
+ - jump to the code for g
+ - have g allocate and init it's local/temp data
+
+//this list is in the online notes
+when g exits
+ - copy fp pointer, in the AR for g into sp
+ - load the control link of AR for g into the fp
+ - jump to the returned address
+ - pop the paramrs of g off the stack
+
+
+MOAR CODE
+void f(int x) {
+  int a;
+  int b[4];
+  int c;
+  ...
+}
+
+----------
+params:
+        x
+control link <- fp
+ret
+temps:
+        a
+        b[0]
+        b[1]
+        b[2]
+        b[3]
+        c
+----------
+
+BUT
+BUT
+BUT
+what if we have variable sized array?
+put it on the heap!
+
+ha, he's sharing an awk story
+done
