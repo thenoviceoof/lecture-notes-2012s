@@ -1,0 +1,206 @@
+Quantum Computing
+lecture #20
+2012/04/03
+================================================================================
+
+Got in 10 minutes late
+
+Review: order finding
+
+Today: something!
+
+--------------------------------------------------------------------------------
+
+define:
+|u_s> = 1/\sqrt{r} \sum_{k=0}^{r-1} e^{-2\pi i s k/r} |x^k mod N>
+U|u_s> = 1/\sqrt{r} \sum_k^{r-1} e^{-2\pi i s k/r} U|x^k mod N>
+  U|x^k mod N> = |x^{k+1} (mod n)>
+U|u_s> = 1/\sqrt{r} \sum_{k=1}^{r} e^{-2\pi i s (k-1)/r} |x^k mod N>
+ = e^{2\pi i s/r} / \sqrt{r}
+   \sum_{k=1}^{r} e^{-2\pi i s k/r} |x^k mod N>
+
+// if k=r
+ e^{-2\pi i s r/r} |x^r mod N> = |1>
+// if k=0
+ e^{-2\pi i s 0/r} |x^0 mod N> = |1>
+
+// thus:
+ = e^{2\pi i s/r} / \sqrt{r}
+   \sum_{k=0}^{r-1} e^{-2\pi i s k/r} |x^k mod N>
+
+eigenvalue:
+  e^{2\pi i s/r} / \sqrt{r}
+|u_s>:
+  \sum_{k=0}^{r-1} e^{-2\pi i s k/r} |x^k mod N>
+
+Idea: use phase estimation (PE) with U, |u_s>
+  to get an estimation \hat\phi_s of \phi_s = s/r
+#1 what is the init state? (|u_s> depends on r)
+#2 how to get r from \hat\phi?
+#3 how to compute U^{2^j} efficiently?
+
+----------------------------------------
+#1 what is the initial state?
+|u_s> unknown
+1/\sqrt{r} \sum_{s=0}^{r-1} |u_s>
+ = 1/\sqrt{r} \sum_{s=0}^{r-1} 1/\sqrt{r}
+   \sum_{k=0}^{r-1} e^{-2\pi i s k/r} |x^k (mod N)>
+ = 1/r \sum_{k=0}^{r-1} \sum_{s=0}^{r-1}(e^{-2\pi i s k/r}) |x^k (mod N)>
+
+// inner sum, if k = 0
+ \sum_{s=0}^{r-1} 1 = r
+// inner sum, if k > 0
+ (e^{-2\pi i s r/r} - 1) / e^{-2\pi i s/r} = 0
+
+ = 1/r r|x^0 (mod N)>
+ = |1>  // of L qubits, |0..01>
+
+
+we have selected t, such that:
+  t = (2L+1)+ceil(lg(2+1/(2\epsilon))
+  L = ceil(lg N)  // L is number of bits required
+Phase estimation, initial state:
+  |0>^(\tensor t) |1>
+ -> H^(\tensor t) \tensor I >-
+  (1/2^(.5) \sum_{j=0}^{2^t-1} |j>) (1/r^.5 \sum_s^{r-1} |u_s>
+  = 1/r^.5 \sum_s^{r-1} 1/2^(t/2) \sum_{j=0}^{2^t-1} |j> |u_s>
+ -> Ctl-U >-
+  1/r^.5 \sum_s^{r-1} 1/2^(t/2) \sum_{j=0}^{2^t-1} |j> U|u_s>
+  = 1/r^.5 \sum_s^{r-1} 1/2^(t/2) \sum_{j=0}^{2^t-1} e^{2\pi i s j/r} |j> |u_s>
+ -> F^H \tensor I >-
+  1/r^.5 \sum_s^{r-1} \sum_{j=0}^{2^t-1} a(s/r, j) |j> |u_s>
+
+AFter the measurement(?) Phase Estimation, if it succeeds, it will
+give us an estimation \hat\phi_s of \phi_s=s/r for some success
+probability w/ known eigenvector >= (1-\epsilon)
+
+in our case, for an individual/specific s
+(1/r^.5)^2 (1-\epsilon)  // very small
+WE CAN FIX THIS
+
+--------------------------------------------------------------------------------
+#2 how to get r from \hat\phi_s ~= \phi_s = s/r although we don't know s or r?
+
+pretending the phase estimation succeeded
+go back later and re-motivate it
+
+Theorem (5.1, appendix A.416, page 137):
+if |s/r-a| <= 1/(2r^2)
+  // a = \hat\phi_s
+then s/r is a convergent of the container fraction for a and can be
+obtained using the count fraction algorithm
+
+what's this mean?
+if it's within some bounds, then ?
+it'll generate a sequence of pairs, of which one will be correct?
+
+----------------------------------------
+#1. (?)
+In phase estimation, we have 2L+1 bits of accuracy
+  2L+1 >= 2 lg(N) + 1 >= lg(2 N^2)
+Error: 1/2^(2L+1)
+  <= 1/2^(2 lg(N) + 1)
+  <= 1/2^(lg(2 N^2))
+  = 1/(2N^2)
+  <= 1/(2r^2)
+because r < N
+
+with accuracy "ok", we can apply the theorem
+
+
+Think of \hat\phi_s = [a_0 .. a_n] for n <= lg(N)
+  use a_i to get pairs p/q ~= s/r
+
+quantum mechanically, we are _done_
+everything else forward is classical
+
+----------------------------------------
+Continued fraction
+Any rational number can be expressed as a continued fraction
+fraction:
+  x = a_0 + 1/(a_1 + 1/(a_2 + ... /(a_i + 0) ...))
+we need a_0...a_i
+
+example:
+x = 43/18
+ = 2 + 7/18
+ = 2 + 1/(18/7)
+ = 2 + 1/(2 + 4/7)
+ = 2 + 1/(2 + 1/(7/4))
+ = 2 + 1/(2 + 1/(1+3/4))
+ = 2 + 1/(2 + 1/(1+1/(4/3)))
+ = 2 + 1/(2 + 1/(1+1/(1+1/3)))  // stop here
+ = 2 + 1/(2 + 1/(1+1/(1+1/(3/1))))
+ = 2 + 1/(2 + 1/(1+1/(1+1/(3+0))))
+a_0..a_4 = [2, 2, 1, 1, 3]
+
+for fraction m/n = m/2^t
+depth <= lg(n)
+depth <= lg(t) = O(lg N)
+
+theorem says that given \hat\phi_s = [a_0 ... a_n]
+you can get s/r = \phi_s = [a_0 ... a_m]
+for m <= n <= lg(N)
+
+using [a_0 ... a_n], compute a sequence of numbers p_i/q_i
+and check if p_i/q_i is s/r
+// x^\phi (mod N) ?= 1 (?)
+how do we get this sequence? with a continued fraction algorithm
+
+Continued fraction algorithm
+page 63C(?), A.4.15
+a_0..a_n, [a_0...a_n] = p_n/q_n
+----------
+as follows:
+p_0=a_0, q_0=1
+[a_0] = p_0/q_0 = a_0
+  example: 48/18 approximated by 2
+p_1=a_0 a_1 + 1, q_0=a_1
+[a_0, a_1] = p_1/q_1
+  example: 48/18 approximated by 2+1/2
+...etc...
+
+\hat\phi_s = .333
+ = 333/1000
+ = 0 + 1/(1000/333)
+ = 0 + 1/(3+1/333)
+[a_0] = 0
+[a_0, a_1] = p_1/q_1 = 1/3
+...etc...
+
+phase estimation gives \hat\phi_s
+there is a procedure (continued fraction algo)
+that runs in (lg N) steps
+produces candidates s'/r' that we check
+if (x^r' mod N)=1
+ then stop
+else
+ take next s'/r'
+
+Two types of error
+ - PE fails
+ - All the s'/r' have a common factor s/r gcd(s,r)>1
+To fix both problems:
+ I want PE to produce \hat\phi_s for any s' then s/r, ok gcd(s,r)=1
+
+1/r(1-\epsilon) (# primes < r)
+  >= 1/r(1-\epsilon) r/(2 lg(r))
+  = 1/(2 lg(r)) (1-\epsilon)
+  >= 1/(2 lg(N)) (1-\epsilon)
+
+we can boost the success probability using repetitions
+  fuck, is that the surprise?
+  okay, repetitions, but not too many
+how?
+  probability of failure above (1-(1-\epsilon)/(2\lg(N)))
+  repeat \lg(N) times, then chance to always fail is:
+  prob(1-(1-\epsilon)/(2\lg(N)))^lg(N)
+probability to succeed at least once is:
+  1-(1-(1-\epsilon)/(2\lg(N)))^lg(N)
+
+how can we approximate this?
+  remember (1+1/a)^m ~= e^{m/a}
+  prob of success = 1-e^(-lg(N) (1-\epsilon)/(2\lg(N)))
+   = 1-e^(-(1-\epsilon)/2)
+   = 1-1/e^((1-\epsilon)/2)
+   > 0.5  // by choosing \epsilon correctly
