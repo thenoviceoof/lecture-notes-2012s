@@ -1,0 +1,160 @@
+PLT
+2012/04/04
+#20
+================================================================================
+
+got in 20 minutes late, blah
+
+Outline:
+  project:
+    report due 6pm, May 6
+    presentation la la la
+    20 min present, 10min Q/A
+
+Code generation:
+  issues?
+  target machines
+  tasks
+  basic blocks and flow graphs
+
+--------------------------------------------------------------------------------
+
+He drew a simplified diagram
+
+source ->[front end]>- IR ->[code opt]>- IR ->[code gen]>- target program
+
+Going from IR to target program
+
+--------------------------------------------------------------------------------
+Issues in code gen
+ - target program preserves the esemantics of the source
+ - target program should make efficient use of the target machine's resources
+
+Memory Hierarchy
+  registers 	.2-.5ns     256-1024b
+  L1 cache      0.4-1ns     32k-256kb
+  L2 cache      4-10ns      512k-2mb
+  main (RAM)    50-500ns    256mb-16gb
+  disk          5-15ms      1tb
+  tape          1-50s       \infty
+
+la la la
+
+optimal code generation is undecidable
+contrast, everything is linear on the frontend
+
+GOOD HEURISTICS FOR EVERYONE
+
+--------------------------------------------------------------------------------
+Categories of target machines
+
+RISC
+  many registers
+  three-address instructions
+  simple addressing modes
+  simple instruction set architecture
+CISC
+  few registers
+  two-address instructions
+  variety of addressing modes
+  several register classes
+  variable-length instructions
+  instructions with side effects
+
+details pulled from the lecture notes
+
+Stack based computers
+  old
+  but the JVM is based off stack-based arch
+
+Multicore machines?? What is this?
+
+--------------------------------------------------------------------------------
+Tasks of a code generator
+
+instruction selection
+ - what's the abstraction level of the IR? (lower means more direct mapping)
+ - what's the chip's ISA like?
+ - how good do you want the code to be?
+
+register allocation and assignment
+
+eval order
+
+--------------------------------------------------------------------------------
+let's practice?
+
+float a[1..10, 1..10];
+for(i=1; i <= 10; i++)
+  for(j=1; j<=10; ++j)
+    a[i][j] = 0.0;
+
+a is stored in row-major form, each entry 8 bytes
+*a = a[1][1]
+*(a+8) = a[1][2]
+...
+
+compiler has to do the mapping from [i][j] -> *(a+c)
+c = 8*((10*i)+j)-88
+// b/c not 0-indexed
+
+aw shit breaking out the 3-addr code
+B1: i=1
+B2: j=1
+B3: t1 = 10*i
+    t2 = t1+j
+    t3 = 8*t2
+    t4 = t3-88
+    a[t4] = 0.0
+    j = j+1
+    if j <= 10, goto B3
+    i = i+1
+    if i <= 10, goto B2
+
+--------------------------------------------------------------------------------
+Basic block is a maximal sequence of consecutive 3-addr instructions such that
+ #1 flow of control can only enter the basic block through the first
+  instruction in that block
+ #2 control will leave the block without halting or branching except
+  possibly at the last instruction in the block
+
+split it up into basic blocks
+ENTRY
+----------
+B1: i=1
+----------
+B2: j=1
+----------
+B3: t1 = 10*i
+    t2 = t1+j
+    t3 = 8*t2
+    t4 = t3-88
+    a[t4] = 0.0
+    j = j+1
+    if j <= 10, goto B3
+----------
+    i = i+1
+    if i <= 10, goto B2
+----------
+EXIT
+
+Okay, let's make a diagonal matrix
+float a[1..10, 1..10];
+for(i=1; i <= 10; i++)
+  for(j=1; j<=10; ++j)
+    a[i][j] = 0.0;
+for(i=1; i <= 10; i++)
+  a[i][j] = 1.0;
+
+loop in a flow graph is a set of basic blocks L such that
+ #1 there is a basic block in L called the loop entry with no
+  other basic block in L that has a predecessor outside L
+ #2 every block in L has a nonempty path completely within L to the
+  entry of L
+
+drawing a dag
+1 -> 2
+1 -> 3
+2 -> 3
+3 -> 2
+// this requires a goto, only whiles/fors won't do this
