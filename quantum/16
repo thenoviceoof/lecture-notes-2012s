@@ -122,15 +122,15 @@ motivation:
 
 --------------------
 Proof:
-F|i> 
+F|j> 
  = 1/\sqrt{N} \sum_k e^(2\pi i (j k)/N) |k>
    // switch to bitwise k
- = 1/\sqrt{N} \sum_k e^(2\pi i (j (2^n k_1 .. k_n)/2^n)/N) |k_1>..|k_n>
- = 1/\sqrt{N} \sum_k_1 ... \sum_k_n
+ = 1/\sqrt{N} \sum_k e^(2\pi i (j (2^n k_1 + .. + k_n)/2^n)/N) |k_1>..|k_n>
+ = 1/\sqrt{N} \sum_{k_1=0}^1 ... \sum_k_n
    e^(2\pi i j k_1/2)..e^(2\pi i j k_n/2^n)  |k_1>..|k_n>
  = 1/\sqrt{N} \sum_k_1 e^(2\pi i j k_1/2) |k_1> ...
               \sum_k_n e^(2\pi i j k_n/2^n) |k_n> ...
- = 1/\sqrt{N} \tensor_l=0^n ( \sum_k_1 e^(2\pi i j k_l/2^l) |k_l> )
+ = 1/\sqrt{N} \tensor_l=0^n ( \sum_{k_l} e^(2\pi i j k_l/2^l) |k_l> )
 
 we got our tensor product form, but we need to interpret it
 examples:
