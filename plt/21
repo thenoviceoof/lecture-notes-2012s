@@ -1,0 +1,138 @@
+PLT
+2012/04/09
+#21
+================================================================================
+
+30+ minutes late
+
+Code generation
+instruction selection
+register allocation + assignment
+instruction ordering
+
+Procedure call
+ADD SP, SP, #sizeof caller AR
+ST O(SP), #return Address
+BR caller.codeArea
+
+a = b + c
+d + a + e
+::translates to:
+# a = b + c
+LD R1, b
+LD R2, c
+ADD R1, R1, R2
+ST a, R1
+# d + a + e
+LD R1, a # this is redundant
+LD R2, e
+ADD R1, R1, R2
+sT d, R1
+
+# a = b + c
+LD R1, b
+LD R2, c
+ADD R1, R1, R2
+ST a, R1
+# d + a + e
+LD R2, e # tada!
+ADD R1, R1, R2
+sT d, R1
+
+...
+
+Probably talked about liveness around here
+Skip to next use info
+
+Next use info
+i: x = y+z // x is live at i
+...
+no assignmens to x
+...
+j: a = x+b // j uses the value of x computed at i
+
+Algorithm to compute liveness and next_use info for a basic block?
+  // next class, for any acyclic graph?
+ - scan backwards from end ofblock
+ - assume all nontemp values are live on exit
+
+at statement i (from above example)
+  x = y+z
+ #1 attach the symbol table info to x,y,z, for statement i
+ #2 set info for x to be "not live" and no next use
+ #3 set info for y and z to be "live" and next uses of y+z to be statement i
+
+A simple code generator
+ - register descriptor
+   - keeps track of the variables whose current value is that register
+ - address descriptor
+   - keep track of locations where the current value of a variable can be found
+ - getReg(I)
+   - select registers for each memory location associated with the
+     3-address instruction
+
+### t = a-b
+LD R1,a
+LD R2,b
+SUB R2,R1,R2
+LD t, R2
+### BREAKPOINT 1
+### u = a-c
+LD R3,c
+LD R2,b
+SUB R1,R1,R3
+LD u, R1
+### BREAKPOINT 2
+
+R1 R2 R3        a       b       c       t       u
+------------------------------------------------------------
+                a       b       c                   # beginning
+a  t            a,R1    b       c       R2          # BREAKPOINT 1
+u  t  c         a       b       c,R3    R2      R1
+
+Keep values in registers as long as possible
+have to swap eventually, though
+use graph coloring to get optimal register use(?)
+
+Ershov (Sethi-Ullman) Numbers
+ #1 label each leaf 1
+ #2 one child, then parent has some number
+ #3 two children, either max or number+1 if they are equal
+used a military chain of command analogy
+
+used to count how many registers are necessary
+(a-b)+e*(c+d)
+tree:
+(+ (- a b)
+   (* e (+ c d)))
+annotated tree (counts)
+(+3 (-2 a1 b1)
+    (*2 e1 (+2 c1 d1)))
+annotated tree (registers)
+(+R3 (-R2 aR1 bR2)
+     (*R3 eR2 (+R3 cR2 dR3)))
+->
+LD R3, d
+LD R2, c
+ADD R3, R2, R3
+LD R2, e
+MUL R3, R2, R3
+LD R2, b
+LD R1,a
+SUB R2, R1, R2
+ADD R3, R2, R3
+
+Not enough registers?
+node has number r
+left has number k_1 
+right has number k_2
+k2 >= k1
+
+do the harder part first
+genCode(right, R1)
+ST temp, R1
+genCode(left, R2) // using R1
+LD R1, temp
+ADD R1, R2, R1
+
+la la la
