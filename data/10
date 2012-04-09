@@ -1,0 +1,180 @@
+DDM
+Lecture #10
+2012/04/09
+================================================================================
+
+Max
+used to be data scientist at OkCupid
+now data scientist for hire
+max@shron.net
+
+work done for New York Times
+transit stuff (chicago)
+  transit cuts - were they income-ist/racist?
+
+google transit data
+  pulled before and after transit cuts
+  cities give it up to the public (ex. schedules), no use hiding it anymore
+  yay! no scraping
+
+Note to self: pick up some public data, play with it
+
+what's the data look like
+ - tabular
+ - time series (time, station, train)
+ - direction
+ - coordinates of station (geo)
+
+data, bunch of csv,s (like multiple tables)
+--------------------
+agency.txt
+calendar.txt
+calendar_dates.txt
+routes.txt
+shapes.txt
+stop_times.txt
+stops.txt
+transfers.txt
+trips.txt
+
+teehee, multiple panes
+teehee, bad handwriting
+
+looking for mapping
+(train_line, hour) -> wait
+probably easier to break this up into weekday, weekend
+just pick Tuesday
+
+use stop_times.txt
+
+focus on departure times (how soon until train is moving)
+
+use the same stop_sequence id, so we get all the departures from the
+same station
+
+hmm: using convention
+-> to denote mapping
+=> to denote transformation
+
+(trip, departure)
+=> (train, departure)
+=> (train, hour)
+-> all departures
+=> (train, hour)
+-> wait
+
+editing python now
+huh, csv.DictReader
+
+getting stop_times.txt from stdin
+reading trips.txt from file (to map trips to train stations)
+
+python: doctest
+huh, automatic unit tests in your docstrings
+
+huh, ipython -> prepend ? gets help
+
+hmm, 24 hour format wrap?? datetmie doesn't handle it?
+24< hour is fine: monday wraps to tuesday, too, and we have WKD
+
+okay, now we're done with mapping, let's reduce all these things
+oh, remember the direction: get only one direction
+
+python: huh, take a second look at itertools
+  using groupby from it
+  ew, plain lambdas
+
+how do we find it from arrival times?
+  have to use squared differences (more likely to come during long waits)
+
+--------------------------------------------------------------------------------
+lecture proper
+
+unsupervised learning
+
+ex.
+  find clusters of pixels in an image
+  find similar images
+
+k-means clustering
+  just find some clusters
+
+k-means
+  choose number of clusters
+  init cluster centers
+  while not converged:
+    assign each point to closest cluster
+    update cluster centers
+
+// loss function behind the convergence, but mostly do it until it stops moving
+
+----------------------------------------
+so, k-means + math
+
+observed example x_i
+latent (unobserved) cluster assignment z_i
+
+z_10 = 3 // 10th point is assigned to cluster 3
+z_i = k // ith point is assigned to cluster k
+
+// loss
+L = \sum_i (x_i - \mu_{z_i})^2
+
+introduce some auxiliary variables
+\Tau_ik = {z_i=h: 1, else: 0}
+  // binary matrix whose rows sum to 1
+// so then we can rewrite our loss as:
+L = \sum_i \sum_k \Tau_ik (x_i - \mu_k)^2
+
+for each point, assign to nearest cluster
+  // update z_i
+for each cluster, update cluster mean
+  // update \mu_k
+
+----------------------------------------
+Probabilistic Generative Modules:
+  // specifically, Gaussian Mixture models
+imagine a model that generates clusters of data
+  for each point,
+    roll k-sided die (with bias \Pi) to determine cluster assignment
+      // whoa, deja vu
+    p(z_i = k | \Pi) = \Pi_k
+    sample coordinates from corresponding cluster
+    p(x_i | z_i=k, \mu,\sigma) = N(x_i|\mu_k, \sigma_k)
+      // you have 2 cluster centers, throw a dart, something something
+
+  likelihood: "complete-data"
+    \theta = {\mu_k\sigma_k,\Pi_k}
+    p(x,z|\theta) = \prod_i^N p(x_i,z_i|\theta)
+  incomplete data likelihood
+    p(x|\theta) = \sum_z_1 ... \sum_z_N \prod_i^N p(x_i,z_i|\theta)
+
+  L = log p(x|\theta) = log \prod_i^N \sum_k p(x_i,z_i=k|\theta)
+    = \sum_i log \sum_k p(x_i,z_i=k|\theta)
+    // IID assumption helps
+  \d_{\mu_l} L = 0  // -> \hat\mu_l
+  \hat\mu_l  // doomed to be troubled, chain+rule on derivative of logs
+
+  introduce \Tau_ik = p(z_i=k|x_i,\theta)
+  claim the following:
+    L = \sum_i \sum_k \Tau_ik log p(x_i,z_i=k|\theta)/\Tau_ik
+  check:
+    \sum_i \sum_k p(z_i=k|x_i) log p(x_i,z_i=k|\theta)/p(z_i=k|x_i)
+    = \sum_i \sum_k p(z_i=k|x_i) log p(x_i)
+    = \sum_i 1 \cdot log p(x_i)
+  // it's a slick trick, but I don't get it. went over very fast
+  // Jensen's inequality - look up
+  L = \sum_i \sum_k \Tau_ik ( lg \Pi_k - 1/2 lg(2\Pi(\sigma_k)^2)
+      - 1/{2 (\sigma_k)^2} (x_i-\mu_k)^2 - lg \Tau_ik )
+  \hat\mu_l = (\sum_i \Tau_il x_i)/(\sum_i \Tau_il)
+  // it's a weighted mean
+  // hard clustering - k-means, you belong or not (binary)
+  // soft clustering - you can have degrees of belonging
+  \hat\sigma_l = \sum \Tau_il (x_i - \hat\mu_l)^2 / \sum_i \Tau_il
+  \hat\Pi_l = 1/N \sum_i \Tau_il
+  \Tau_il = \Pi_l N(x_i | \mu_l,\sigma_l) /
+            \sum_l' \Pi_l' N(x_i|\mu_l' \sigma_l')
+  // ummm, recovering k-means
+  \sigma_k => \sigma
+  \Pi_k = 1/k
+  \Tau_ik \in  {0,1}
