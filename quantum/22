@@ -1,0 +1,130 @@
+Quantum Computing
+lecture #22
+2012/04/10
+================================================================================
+
+Almost on time!
+
+Review:
+Finished order finding last time
+O((lg N)^3) -> with small probability (1-\epsilon)/(2\lg N)
+O((lg N)^4) -> with prob > constant // lg N repetitions
+O((lg N)^3) -> with prob > constant // this is a hack
+
+??? improving probability using repetitions
+U^k |y> = |x^k y (mod N)> in time O(L^3), L=ceil(lg N)
+
+Factoring
+N - huge, composite
+Theorem 1: N composite, x^2 = 1(mod N), and x is not a trivial solution
+  (ie. 1 < x < N-1, and x != 1(mod N), x != -1(mod N) = N-1)
+Then gcd(x-1, N) or gcd(x+1,N) is a factor of N
+
+Result:
+  if N is prime, if x^2=1(mod N) has only trivial solutions
+  x^2=1(mod N) is quadratic, has two zeros, something about fields
+
+--------------------------------------------------------------------------------
+Today
+
+factoring (continued)
+
+Theorem 2 (no proof):
+N composite, N = \prod_i^m p_i^\alpha_i, p_i are primes, \alpha_i are ints
+  Select x\in{1..N-1} uniformly at random, gcd(x,N)=1, find order of x(mod N)
+  Note: prob{r even, and x^{r/2}!= -1(mod N)} >= 1 - 1/2^m
+  Note: if m >= 2 then prob{r even, x^{r/2} != -1(mod N)} >= 1-1/2^2 = 3/4
+        even if m=2, then still the prob >= 1/2
+
+Reduction of factoring to order finding!
+yay!
+
+N,x (result of theorem 2)
+find r: x^r = 1(mod N)
+if r is even,
+  x^r-1 = l N
+  <=>
+  (x^r/2-1)(x^r/2+1) = l N  // recall theorem 1
+  x^r = (x^r/2)2
+Need N | x^r/2 - 1 or x^r/2=\pm 1(mod N) replaced by x^r/2
+  N | x^r/2 + 1
+  OR
+  x^r/2 != 1(mod N), True, because r is order w/ luck we get from theorem 2
+  x^r/2 != -1(mod N) = N-1
+
+----------------------------------------
+Shor's algorithm for integer factorizaton
+Input : N composite
+Output : a factor of N
+
+#1 if N is even, return 2
+#2 classically, determine if N = a^b for int a, int b
+   if then return a
+#3 Randomly, uniformly select x\in {1..N-1}
+   if gcd(x,N)>1, return gcd(x,N)
+#4 using the quantum order finding algorithm, get r
+#5 if r even, and x^r/2=-1(mod N), return gcd(x^r/2-1,N) or gcd(x^r/2+1,N)
+   Otherwise, the algorithm fails
+ // #4 is the only quantum mechanical step
+
+Cost follows from order finding:
+O((lg N)^3) with high probability
+ // if you want constant probability, O((lg N)^4)
+
+Remarks:
+All steps are classical except #4 (derp)
+#1 trivial O(1)
+#2 check N = a^b, for int a,b; a>1, b>2
+   lg N = b lg a > b
+   check each b, up to (lg N)
+   determine if f(x) = x^b-N has int solution (which would be a)
+   f(2) = 2^b - N < 0
+   f(2^L/b) = 2^(L/b)^b - N > 0; L = ceil(lg n)
+   essentially, use bisection
+   #b steps is L/b
+   cost/step = cost of computing x^b
+             = lg(b) * L^2 // repeated square + multiplication of L-bit int
+   total_cost = \sum_{b=2}^{lg N} L/b lg(b) L^2
+              = L^3 \sum lg(b)/b
+              = L^3 (lg lg N) (lg lg N)
+              // there's a harmonic series somewhere in here
+              = L^3 (lg lg N)^2
+   // not exactly O((lg N)^3), but whatever
+#3 After steps (1,2), we know
+   N is odd
+   N has more than 1 unique prime in it's factorization (m>=2)
+   x - random
+     check if it's a factor
+     if it is, return it
+     else, we have a random number that is not a factor
+     only gcd(N, x)=1
+#4 quantum step
+   Find r with phase estimation
+#5 if r even and x^(r/2)!=-1(mod N)
+   then gcd(x^r/2-1, N)
+   else gcd(x^r/2+1, N)
+
+assuming r is correct (from phase estimation)
+need a new x
+
+Example
+N = 91 = 13 * 7  // m=2
+#1 Not even
+#2 Not a^b
+#3 x - random, say
+   x = 4
+   gcd(91, 4) = 1, proceed
+#4 r = 6
+   from
+   4^6 = 2^12 = 4096 = 45*91 + 1 = 1(mod 91)
+#5 r = 6 // even
+   x^3 = 64 != -1(mod 91)  // = 90
+   gcd(64-1, 91) = gcd(63, 91) = 13
+   gcd(64+1, 91) = gcd(65, 91) = 7
+
+next time, new class of algorithm (grover's)
+fuck yeah search!
+oh, numerical integration!
+
+oh god quiz time
+oh god 4 weeks left
