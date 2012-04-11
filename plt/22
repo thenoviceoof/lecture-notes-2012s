@@ -1,0 +1,61 @@
+PLT
+2012/04/1
+#22
+================================================================================
+
+Got in 35 minutes late
+
+doing optimization
+
+Transformations
+  local common subexpr elimination (CSE)
+  global CSE
+
+The code on the board seems to be in the provided lecture notes
+  annoying that it's a PDF now
+
+----------------------------------------
+Copy propagation
+
+u=v is called a copy
+you have:
+  a = d+e
+  b = d+e
+both leading into this instruction:
+  c = d+e
+
+replace with:
+  t = d+e
+  a = t
+  ---
+  t = d+e
+  b = t
+leading into
+  c = t
+
+Avoid recomputing common subexpressions
+
+----------------------------------------
+Killing dead code
+
+often copy propagation produces copy statements that are dead code
+
+----------------------------------------
+Induction variable Elimination
+
+A variable x is called an induction variable if its value always
+changes by a constant whenever it is assigned a new value
+
+----------------------------------------
+Huh, genetic programming optimizations
+  but it took a week to run?
+
+one more transformation
+
+----------------------------------------
+Code motion
+
+move loop-invariants outside of loops
+
+next time:
+framework to collect info, with which we can implement the code transforms
