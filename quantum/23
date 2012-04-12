@@ -1,0 +1,190 @@
+Quantum Computing
+lecture #23
+2012/04/12
+================================================================================
+
+Quiz -> meh
+
+Review:
+Shor's factorization algorithm
+
+O((lg N)^3) w/ high probability
+only one step is quantum based
+  classical: do all this book-keeping stuff yay
+Reduction to order finding
+  x \in {1..N-1} randomly, with uniform distribution
+  order r : x^r=1(mod N)
+  Theorems:
+  Theorem 1:
+    Probability r is veen, x^r/2 != -1(mod N) >= 3/4
+  Theorem 2:
+    gcd(x^r/2 +1, N), gcd(x^r/2 -1, N)
+
+Questions:
+how to compute all factors of N?
+  N = \prod^m p_i^{\alpha_i}
+  find all the p_i
+  Just apply shor over and over again // self predict
+  Run times :
+    m <= lg N
+    \sum \alpha_m <= lg N
+    these bound the depth of the tree
+    as well as the branching factor
+    as well as the total number of nodes
+
+Today
+MOAR quantum algorithms
+start talking about grover's algorithms
+
+--------------------------------------------------------------------------------
+Search and counting algorithms
+
+Grover's algorithms - search
+Boolean (* something *)
+Applications to counting problems
+  integration
+  path integration
+  function approximation
+  optimization
+  ODE/PDE
+
+CHECK
+In class files:
+  papers by Grover
+  paper by Brasard, Hoer, Mosca, Tapp : Amplitude amplification and estimation
+  Noyock(?), Ww(?) : Lower bounds
+  Beals(?) et al : Upper bounds,
+                   introduce a model of quantum computation w/ queries
+
+--------------------------------------------------------------------------------
+Search
+function f:{0..N-1} -> {0,1}  // boolean function
+let N be huge
+select indicies i such that
+  M_f = {i : f(i)=1}
+  and M_f != {}
+  M = |M_f|
+  1 <= M <= N
+Problem: find an x:f(x)=1
+Searching an unordered database (reverse telephone lookup)
+
+Boolean mean
+Compute S(f) = 1/N \sum_i^{N-1} f(i)
+  Here, we allow M=0 (defined above, with restriction)
+  N >= M >= 0
+  with accuracy \epsilon (and high probability)
+    |S(f)-\hat S(f)| <= \epsilon
+
+----------------------------------------
+MOAR SEARCH (classical)
+How many evaluations of f are needed to get x: f(x)=1 ?
+
+Classical deterministic
+O(N) // lower bound: N-1 function evaluations
+upper bound is N-1
+linear yay
+
+Classical random algorithms
+lower bound: \Omega(N)
+upper bound: HUGE
+2 examples:
+example 1:
+  select k evaluations at random uniform, w/ replacement
+  f(i): i randomly chosen, k times
+  probability to fail once: 1-M/N
+  probability to fail k times: (1-M/N)^k <= \delta
+  k lg(1-M/N) <= lg \delta
+  k >= lg(\delta) / lg(1-M/N)
+    ~= lg(\delta) / -M/N   // using lg(1+x)~x when x is small
+    = N/M lg(1/\delta)
+  so if M=O(1) then k=\Omega(N)
+  Note: keep in mind that if M/N >= c const
+        Prob{f(i)=1} = M/N >= c
+        then 1/c repetitions are needed to get success probability > 1/2
+        Prob{f(i)=1} >= 1/(lg N)
+        then lg N repetitions needed
+example 2:
+  w/ replacement select randomly k evaluation points
+  Probability to fail?
+   = Cr(N-M k) Cr(M 0) / Cr(N k)
+     // let M = 1
+   = Cr(N-1 k) / Cr(N k)
+   = (N-k) / N
+   = 1-k/N
+     // if k << N
+   >= 1/2
+   // MOAR REPETITIONS
+   Repeat S times to make probability of failure small
+   (1-k/N)^S <= \delta
+   S lg(1-k/N) <= lg \delta
+   S >= (lg \delta) / (lg 1-k/N)
+    ~= N/k lg(1/\delta)
+   Sk >= N lg(1/\delta)
+   total number of evaluations = \Omega(N)
+
+----------------------------------------
+Boolean mean:
+  How many evaluations of f are needed so that S(f) is approximated with
+  accuracy/error \epsilon? Worst case
+Back to classical:
+  k evaluations
+  k_1 of these yield f(x_j) = 1
+  k_1/N <= S(f) <= k_1/N + (N-k)/N
+  so the error is
+  \epsilon >= 1/2(k_1/N + (N-k)/N - k_1/N) = (N-k)/(2N)
+  (N-k)/(2N) <= \epsilon 
+  N-k <= 2\epsilon N
+  k >= N(1 - 2\epsilon)
+      // if \epsilon << 1/2
+    = \Omega(N)
+classical randomized
+  use monte carlo technique
+  S_MC(f) = 1/k \sum_i f(x_i)
+  x_i is randomly chosen
+  (E[S(f) - \hat S_MC(f)])^0.5 <= 1/\sqrt{k}
+  k = min{1/\epsilon^2, N}
+
+----------------------------------------
+Quantum algorithms
+Grover's algorithm
+  need O(\sqrt{N/M}) queries  // for M=1, O(\sqrt{N})
+  polynomial speedup over classical algorithms
+
+number of queries = min(1/\epsilon, N)
+  polynomial speedup relative to classical algorithms
+
+Recall:
+query U_f   // x is n qubits, y is 1 qubit
+U_f |x>|y> = |x> |y\xor f(x)>
+Recall again:
+  assume we have another query O_f
+O_f |x> = (-1)^f(x) |x>
+  U_f |x> (H|1>) = 1/2^.5 ( |x>|f(x)> - |x>|!f(x)>  )
+  let f(x) = 0
+   = 1/2^.5 ( |x>|0> - |x>|1>  )
+   = 1/2^.5 |x> ( |0> - |1>  )
+   = |x> H|1>
+  let f(x) = 1
+   = 1/2^.5 ( |x>|1> - |x>|0>  )
+   = 1/2^.5 |x> ( |1> - |0>  )
+   = -|x> H|1>
+in either case, U_f|x> H|1> = (-1)^f(x) |x> H|1>
+
+Grover's Iteration
+Grover's operator G
+#1 apply O_f
+#2 apply H^(\tensor n)
+#3 apply phase shift 
+   S_0 = 2|0><0| - I
+   Househalder matrix
+     S_0 |0> = (2|0><0| - I)|0>
+             = 2|0><0|0> - |0>)
+             = |0>
+     // let x != 0, |x> \ortho |0>
+     S_0 |x> = (2|0><0|x> - |x>)
+             = -|x>
+     S_0 |y> = -(-1)^S_0y |y>
+     S_0y = {y=0: 1, y!=0: 1} // kronecker delta
+#4 apply H^(\tensor n)
+
+G = H^(\tensor n) (2|0><0| - I) H^(\tensor n) O_f
