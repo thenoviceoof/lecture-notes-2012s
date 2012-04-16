@@ -1,0 +1,153 @@
+PLT
+2012/04/16
+#23
+================================================================================
+
+got to class on time for once. wth
+
+outline:
+dataflow analysis schemas
+reaching definitions
+control-flow equations
+iterative algorithms
+
+man, people are loud
+
+few weeks is final exam (maybe one? idk) (2 weeks)
+
+week from wednesday, 2 groups presenting
+ - fuck fuck fuck fuck fuck
+
+--------------------------------------------------------------------------------
+Program point (?)
+about reaching definitions
+
+label the statement with an int d
+d: u + v + w
+...
+p:...
+
+definition d reaches p if there is a path from d to p without d being killed
+
+data-flow value for reaching definitions is a subset of all
+definitions in the program
+
+IN[d] = {definitions that can reach d: u=v+w}
+OUT[d] = ?
+
+d generates a definition of the variable u
+d kills all previous definitions of u
+
+transfer function for statement d
+  f_d(x) = gen_d U (x-kill_d)  // U stands for union
+compose transfer functions...
+  f_1(x) = gen_1 U (x-kill_1)
+  f_2(x) = gen_2 U (x-kill_2)
+
+f_2(f_1(x)) = gen_2 \union (gen_1 \union (x-kill_1)-kill_2)
+            = gen_2 \union (gen_1 - kill_2) \union (x - (kill_1 \union kill_2))
+
+for block B
+  f_B(x) = gen_B \union (x - kill_B)
+  // kill_B is all defs killed by B
+  // gen_B is all defs that are visible after B
+
+----------------------------------------
+Control flow equations
+IN[B] = \union_{P is predecessor of B} OUT[P]
+OUT[B] = gen_B \union (IN[B] - kill_B)
+
+foreach(B) compute gen_B and kill_B
+foreach(B) OUT[B] = {}
+while(changes to any OUT occurs
+    foreach(B != ENTRY)
+        IN[B] = \union_P OUT[P]
+        OUT[B] = gen_B \union (IN[B] - kill_B)
+
+schema for all forward dataflow analysis
+
+... algorithm is bound to terminate
+
+--------------------
+example time!
+
+ENTRY -> B_1 -> B_2
+B_2 branch -> B_3
+B_2 branch -> B_4
+B_3 -> B_4
+B_4 branch -> B_2
+B_4 branch -> EXIT
+
+B_1
+1: i = m-1
+2: j = n
+3: a = u 1
+
+B_2
+4: i = i + 1
+5: j = j + 1
+
+B_3
+6: a = u2
+
+B_4
+7: i = u3
+
+Okay, let's calculate some INs and OUTs
+
+BLOCK           gen             kill            IN              OUT
+----------------------------------------------------------------------
+ENTRY           {}              {}              {}^0            {}^0
+B1              123             456             -               {}^0
+                                                {}^1            123^1
+                                                {}^2            123^2
+                                                {}^3            123^3
+B2              45              127             -               {}^0
+                                                123^1           345^1
+                                                123567^2        3456^2
+                                                123567^3        3456^3
+B3              6               3               -               {}^0
+                                                345^1           456^1
+                                                3456^2          456^2
+                                                3456^3          456^3
+B4              7               14              -               {}^0
+                                                3456^1          3567^1
+                                                3456^2          3567^2
+                                                3456^3          3567^3
+EXIT            {}              {}              -               {}^0
+                                                3567^1          3567^1
+                                                3567^2          3567^2
+                                                3567^3          3567^3
+
+Note: kill does not care about causality
+IN and OUT get iterated, hence the superscripts
+dammit there's a loop? (fixed)
+
+Lattice theorem?
+
+When algorithm terminates (no more changes) outputs:
+BLOCK	IN[B]	OUT[B]
+--------------------
+B1      {}      123
+B2      123567  3456
+B3      3456    456
+B4      3456    3567
+EXIT    3567    3567
+
+yay bit vectors for implementation
+
+--------------------
+Summary: Reaching definitions
+Domain: sets of definitions
+Direction: forwards
+Transform: gen_B \union (x - kill_B)
+Boundary: OUT[ENTRY] = {}
+  // lattices have a meet operation
+Meet: union
+  // transfer equations
+equations:
+  IN[B] // both defined as before
+  OUT[B]
+Initialization: OUT[B] = {}
+
+Next: do some lattice stuff
