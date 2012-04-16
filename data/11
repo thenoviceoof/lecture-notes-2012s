@@ -1,0 +1,214 @@
+DDM
+Lecture #11
+2012/04/16
+================================================================================
+
+John Langford
+  @hunch (?)
+
+talking about Vowpal Wabbit (vw)
+which he built (OH SHIT)
+
+vm built of orthogonal parts
+
+batch/not
+
+vm includes tricks to do things fast
+
+hm, parsing becomes a bottleneck?
+.cache file (-c)
+
+don't use a hashmap (takes up ton of memory)
+use a hash function instead,
+and let the learning algorithm take care of collisions
+  seen 100 things mapping to an index
+  fantastic for ram, but...
+  if you have a ton of features, then collisions don't hurt so bad
+
+somehow it helps handle drift? (didn't catch how)
+
+talking about bloom filters
+
+Spam example
+3mil emails
+400k users
+40mil unique features
+  ngrams, skipgrams
+did <w,\phi(x)> + <w,\phi_u(x)> // use the global/user features
+
+using 26 bits (256mb) got 2/3 better than baseline
+
+----------------------------------------
+online learning
+
+online + hashing trick means bounded memory size
+  independent of data set size
+
+start with w_i = 0
+w_i = w_i + \nu 2(y - \hat y) I x
+  // \nu - learning rate
+  // I - importance of truth y
+
+only need to hold 1 example in RAM (tada! bounded ram)
+
+steps will be noisy, but do it a lot
+
+----------------------------------------
+implicit outer product
+
+care about the interaction of feature sets
+either do it explicitly (n^2 disk)
+or expand the features dynamically
+  x10 faster, but need to be comfy with hashes
+
+
+those were the basic tricks
+--------------------------------------------------------------------------------
+let's look at those algorithmics (next column of tricks)
+
+----------------------------------------
+adaptive learning
+
+problem: online learning is finicky (brittle?)
+
+for example t, g_it = 2(y-\hat y)x_it
+w_i <- w_i - \nu (g_{i,t+1})/\sqrt{\sum_{t'=1}^t g_it'^2}
+
+ha, reference the inverse square hack from quake
+
+common features stabilize quickly, rare features can update wildly
+  // wait, he lied: common features -> features with large gradients
+
+----------------------------------------
+learing with importance weights
+importance weight aware updates (?)
+kind of like gradient descent
+
+just multiplying by the importance weight (I, above) doesn't work that great
+  too big a weight, you can go to lala land
+
+instead of moving forward 6 units, just do 6 steps?
+s(h) ||x||^2 // look into this later
+
+it's fast as supervised learning, but maybe faster?
+  and you don't need to tune :O
+
+need to be able to calculate the integral, though
+
+and pretty graphs! do better than supervised learning
+
+----------------------------------------
+Dimensional correction
+
+gradient of squared loss
+  d_{w_i} (f_w(x)-y)^2 = 2 (f_w(x) - y) x_i
+and then you change weights in the negative gradient direction
+  w_i <- w_i - \nu d_{w_i} (f_w(x)-y)^2
+this update rule has mixed units (w_i units 1/i, x_i implies halving w_i)
+
+crude fix: divide update (gradient term) by \sum_i x_i^2
+  but it works!
+  wtf
+  optimized problem is min_w sum_x,y (f_w(x) - y)^2/(sum x_i^2)
+    instead of min_w sum_x,y (f_w(x) - y)^2
+    doesn't make too much sense to a trad statistician
+  but it works!
+
+haha, he used to be a physicist: follow the units
+
+--------------------
+
+okay, let's put them together, and crank...
+
+and we get vw out!
+
+----------------------------------------
+Batch things!
+LBFGS (from 1980s) (FGS - last names of inventors)
+L-BFGS
+
+batch 2nd order algorithm - efficient approximate Newton step
+
+get the hessian
+H = d^2_{w_i, w_j} (f_w(x) - y)^2
+Newton step: w <- w + H^-1 g
+
+you can't even represent H
+build an approx H^-1
+run over all the data
+  (\Delta_w \Delta_w^T)/(\Delta_g \Delta_w^T)
+  we don't actually compute this matrix
+  just store these things:
+    \Delta_w - change in weights w
+    \Delta_g - change in loss gradient g
+
+----------------------------------------
+hybrid learning
+do online, and then LBFGS
+
+LBFGS -> good at getting the last bits of noise out of the solution
+
+BREAK
+--------------------------------------------------------------------------------
+Parallel learning
+
+"computational windtunnels"
+
+"you fool! the only thing parallel machines are good for is
+computational windtunnels"
+he had a point
+
+2.1 terafeatures, learn you a good linear predictor?
+2.1T features
+17B examples
+16M parameters
+1k nodes (computing nodes)
+
+takes an hour
+500M features/second
+faster than the IO bandwidth of a single machine,
+  beat all possible single machine linear learning algorithms
+
+showing a graph of single vs. parallel things
+huh, +48x increase with 48 nodes: b/c much more cache
+
+MPI - message passing interface
+Allreduce
+each node has an int id
+finish: each node has sum of all node ids
+how to do?
+  tree it: add it up (reduce), and then broadcast the sum back down
+latency, bandwidth problems
+  just pipeline, and latency will be okay
+    when you get 1st numbers from children, push the reduction forward
+  bandwidth <= 6n
+can expand to arbitrary reduce functions
+
+example: weight averaging (works b/c linear objective fn (maybe))
+n = AllReduce(1)
+while(pass_number < max)
+        while examples left
+                do online update
+        allreduce(weights)
+        for each weight w <- w / n
+
+some exposition on why they wrote their own AllReduce
+Hadoop sucks cause...
+MPI sucks cause...
+
+move program to data, like mapreduce
+delay the initialization: failure autorestart on a different node
+  most common failure is due to disk
+  mapreduce is more robust than allreduce: can tolerate failing nodes
+speculative execution:
+  slow nodes will happen
+  hadoop speculatively starts additional mappers if it notices slow nodes
+
+optimize a bunch, so few data passes required
+  pull out our entire bag of tricks
+map-only hadoop for process control, error recovery
+allreduce to sync state
+plus other tricks
+
+implemented in vw 6.1
+also ran in ec2
