@@ -1,0 +1,99 @@
+Quantum Computing
+lecture #24
+2012/04/17
+================================================================================
+
+oh god got into class 30 minutes late: death sentence
+
+...
+
+How does G transform |y> ?
+G|y>
+Observe
+O_f |\alpha> = |\alpha>
+
+...
+
+Set initial state:
+
+...
+
+|y>
+ = 1/N^.5 \sum |x>
+ = 1/N^.5 (\sum_{x\not\in M_f} |x> + \sum_{x\in M_f} |x>)
+ = 1/N^.5 (\sqrt{N-M} |\alpha> + \sqrt{M} |\alpha>)
+ = <\alpha|y> + <\beta|y>
+
+--------------------------------------------------------------------------------
+
+something about reflections
+
+O_f |\beta>
+ = 1/M^0.5 \sum_{x\in M_f} O_f|x>
+ = 1/M^0.5 \sum_{x\in M_f} (-1)^f(x)|x>
+ = -|\beta>
+
+O_f |y>
+ = cos(\theta/2) O_f|\alpha> + sin(\theta/2) O_f|\beta>
+ = cos(\theta/2) |\alpha> - sin(\theta/2) |\beta>
+
+so, |y> gets reflected over the \alpha axis
+
+Look at (2|y><y| - I) (O_f|y>)
+  note: 2|y><y| is a reflection about |y>
+  because
+  (2|y><y| - I)|y>
+   = 2|y><y|y> - |y> = |y>
+  (2|y><y| - I)|z>
+   = 2|y><y|z> - |z>
+   = -|z> \forall |z> \perpendicular |y>
+
+hence:
+G|y> = cos(\theta + \theta/2) |\alpha>
+     + sin(\theta + \theta/2) |\beta>
+
+PAGE 15, FIGURE 1: diagram of the reflections
+
+some diagram I don't understand
+PAGE 15, FIGURE 2: diagram of G^2 |y>, dunno how to derive it
+
+What about G^2|y> ?
+G^2 |y>
+ = cos(2\theta + \theta/2) |\alpha>
+ + sin(2\theta + \theta/2) |\beta>
+
+G^k |y
+ = cos(k\theta + \theta/2) |\alpha>
+ + sin(k\theta + \theta/2) |\beta>
+
+Grover M=1 (M << N)
+\theta/2 ~= sin(\theta/2) = \sqrt{M/N}
+Iterate until
+  k\theta + \theta/2
+   ~= \pi/2   // sin(k\theta + \theta/2) ~= 1
+  (2k+1)\theta/2 ~= \pi/2
+  (2k+1)\sqrt{M/N} ~= \pi/2
+  k ~= 1/2(\pi/2\sqrt{N/M} - 1) = O(\sqrt{N})
+
+use the iterated k:
+G^k |y>
+Prob{ outcome x : f(x) = 1 }
+ = (sin(k\theta + \theta/2))^2 ~= 1
+
+What's the circuit look like?
+PAGE 15, FIGURE 3: circuit for finding f(x) = 1
+
+check if f(m) = 1? // dunno what this is about
+
+G = H^{\tensor n} (2|0><0| - I) H^{\tensor n} O_f
+  // remember, O_f is the query
+  // S_o = 2|0><0| - I
+
+PAGE 16, FIGURE 4: Innard circuits of G
+
+PAGE 16, FIGURE 5: Using U_f as O_f, add an extra qubit to facilitate
+  and don't measure it
+
+next time, better estimate of k
+
+huh, breaking 10 minutes early
