@@ -1,0 +1,138 @@
+PLT
+2012/04/18
+#24
+================================================================================
+
+20 minutes late to class derp
+
+going over why the iterative data-flow analysis algorithm works
+
+live-variable analysis
+P - is x live at p (ex. y = x + a)?
+\exists a path
+
+For block B
+  ex.
+  ----------
+  x = u + v
+  ...
+  y = x + a
+  ----------
+def_B = {x | x is defined in B before any use of x in B}
+use_B = {a | a is used in B before any definition of a in B}
+
+Control-flow equations
+OUT[B] = \union_{S successor of B} IN[S]
+IN[B] = use_B \union (OUT[B] - def_B)
+
+// kind of like a backwards IN/OUT from previously (reaching definitions)
+
+algorithm for live-variable analysis
+Input: flow graph
+Output: IN[B] and OUT[B], the sets of variables live on entry/exit for
+        each block B
+
+algorithm proper:
+foreach(B)
+  compute def_B and use_B
+foreach(B)
+  IN[B] = {}
+  while(changes to any IN)
+    foreach(B != EXIT)
+      OUT[B] = \union_{S successor of B} IN[S]
+      IN[B] = use_B \union (OUT[B] - def_B)
+
+!!! finally caught up!
+
+compare reaching definitions and live variables
+Reaching definitions:
+  Domain: 		sets of defs
+  Direction:		forwards
+  Transfer Function:	gen_B \union (x - kill_B)
+  Boundary:		OUT[ENTRY] = {}
+  Meet operation:	\union
+  Equations:		IN[B] = \union_{P is predecessor of B} OUT[P]
+                        OUT[B] = gen_B \union (IN[B] - kill_B)
+  Initialize:		OUT[B] = {}
+Live variables:
+  Domain: 		sets of variables
+  Direction:		backwards
+  Transfer Function:	use_B \union (OUT[B] - def_B)
+  Boundary:		IN[EXIT] = {}
+  Meet operation:	\union
+  Equations:		OUT[B] = \union_{S successor of B} IN[S]
+                        IN[B] = use_B \union (OUT[B] - def_B)
+  Initialize:		IN[B] = {}
+
+Why does it work?
+
+gonna delve into lattices
+
+--------------------------------------------------------------------------------
+Semilattice
+
+\and, \or
+  1) \and is idempotent, ie. x\and x = x
+  2) \and is commutative
+  3) \and is associative
+
+A semilattice has a top element (TOP) such that \forall x \in V, TOP\and x = x
+
+meet operator, defines partial order <= (leq)
+  x <= y iff x \op y = x
+
+examples:
+  P(S), \union, meet op is \subset   // P() takes the powerset
+  P(S), \intersection
+
+talking about partial ordering some more
+  reflexive, antisymmetric, transitive
+
+----------------------------------------
+greatest lower bound (GLB)
+GLB of x ad y is a semilattice(V, \op) is an elment g such that
+  g <= x
+  g <= y
+  if z in an element such that z<=x and z<=y then z<=g
+
+----------------------------------------
+A data-flow analysis framework defined by
+  direction
+  semilattice(V, \op)
+  family F of transfer functions
+
+Framework is monotone:
+  if forall x and y in V and f \in F
+    x <= y --> f(x) <= f(y)
+framework is distributive
+  f(x\and y) = f(x) \and f(y)
+
+----------------------------------------
+Algorithm for general frameworks
+
+Input
+  A data-flow graph with an ENTRY and EXIT node.
+  A direction, forward or backward.
+  A set of values V for IN and OUT.
+  A meet operator \op on V such that (V, \op) forms a semilattice.
+  A set of transfer functions for the blocks of the data-flow graph.
+  A constant value for the boundary condition:
+    for forward frameworks v_ENTRY;
+    for backward frameworks v_EXIT.
+
+what the fuck is this? it's like the same algorithm we've written down
+today and yesterday
+
+We can show:
+  1) if the algorithm converges, the result is a solution to the
+     dataflow equations
+  2) if the framework is monotone, the solution is a MPF of the equations
+  3) if the semilattice of the framework is monotone and of finite
+     height the algorithm is guarantede to converge
+
+Ideal solution
+  Meet over all paths solution (MOP)
+  MFP solution (maximum fixed point)
+  MFP <= MOP <= Ideal
+
+lambda calculus! next monday!
