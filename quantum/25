@@ -1,0 +1,188 @@
+Quantum Computing
+lecture #25
+2012/04/19
+================================================================================
+
+on time! fuck yeah!
+
+review
+Grover's algorithm
+  apply it to a boolean function
+f:{0..N-1} -> {0,1}
+  N = 2^n
+M_f = {x : f(x) = 1}, M = |M_f|, 1 <= M <= N-1
+
+Grover operator (oracle)
+G = (2|y><y| - I) O_f
+initial state
+|y> = 1/N^0.5 \sum_x |x>
+  |y> is used in G by coincidence
+
+define axis:
+|\alpha> = 1/\sqrt{M-N} \sum_{x \not\in M_f} |x>
+|\beta>  = 1/\sqrt{M} \sum_{x \in M_f} |x>
+
+Initial state:
+|y> = \cos(\theta/2)\alpha + \sin(\theta/2)|\beta>
+  sin(\theta/2) = \sqrt{M/N}
+with M << N (\theta tiny, \theta ~= 1/N)
+
+Measuring the state right now is too close to |\alpha>,
+    need to closer to |\beta>
+rotate the state
+G^k |y>
+ = cos(k\theta + \theta/2) |\alpha>
+ + sin(k\theta + \theta/2) |\beta>
+    k\theta + \theta/2 ~= \pi/2
+
+redrawing the circuit
+LECTURE 24, PAGE 16, FIGURE 5: Using U_f as O_f, add an extra qubit to
+  facilitate and don't measure it
+and redrawing G
+LECTURE 24, PAGE 16, FIGURE 4: Innard circuits of G
+G = H^{\tensor n} (2|0><0| - I) H^{\tensor n} O_f
+  // remember, O_f is the query
+  // S_o = 2|0><0| - I
+
+talked about the homework, derped my way through his suggestions
+
+--------------------------------------------------------------------------------
+Today:
+estimating k more precisely
+
+what if we stop when (k\theta + \theta/2) is within \theta/2 of \pi/2 ?
+  note: it's all about the measurement, not grover's
+\pi/2 - \theta/2 <= k\theta + \theta/2 <= \pi/2 + \theta/2
+
+we can get a uniform superposition of all the states
+  1/N^.5 \sum |x>
+but what about non-uniform
+  M > N/2
+  1/M^.5 \sum^{M-1}_{x=0} |x>
+
+going back to the stop condition:
+\pi/2 - \theta/2 <= k\theta + \theta/2 <= \pi/2 + \theta/2
+\pi - \theta <= (2k + 1)\theta <= \pi + \theta
+\pi - 2\theta <= 2k\theta <= \pi
+\pi/\theta - 2 <= 2k <= \pi/\theta
+\pi/(2\theta) - 1 <= k <= \pi/(2\theta)
+=>
+k = floor(\pi/(2\theta))
+
+\theta/2 ~= sin(\theta/2) = \sqrt{M/N}
+\theta = 2\sqrt{M/N}
+k = floor( \pi/4 \sqrt{N/M} )
+\theta/2 = sin^{-1} ( \sqrt{1/N} }
+
+what if M is not known?
+Brassard et al.
+  algorithm w/ expected number of queries O(\sqrt{N?M}
+  Estimate \theta or sin(\theta)
+    this solves the boolean mean problem
+    approx S(f) = 1/N \sum f(x) = M/N = sin^2 (\theta/2)
+  idea
+    use phase estimation to estimate the eigenvalues of G
+    related to \theta
+
+----------------------------------------
+Grover's with phase estimation
+
+Look at G
+how does G transform |\alpha> and |\beta>
+
+rotate about |y>, not a big deal
+G|\alpha> = cos(\theta)|\alpha> + sin(\theta)|\beta>
+
+O_f|\beta> = -|\beta>, things are gonna get moved all over the place
+G|\beta> = cos(\pi/2 + \theta)|\alpha> + sin(\pi/2 + \theta)|\beta>
+G|\beta> = (c(\pi/2)c(\theta) - s(\pi/2)s(\theta)) |\alpha>
+         + (sin(\pi/2)cos(\theta) + sin(\theta)cos(\pi/2))|\beta>
+G|\beta> = -sin(\theta) |\alpha> + cos(\theta)|\beta>
+
+G =
+[[cos(\theta) -sin(\theta) ]
+ [sin(\theta) cos(\theta)  ]]
+The representation of G in the subspace spawned by {|\alpha>, |\beta>}
+it's a rotation matrix!
+
+find the eigenvalues
+|G - \lambda I| = 0
+let l = \lambda, t = \theta in
+(cos(t) - l)^2 + sin^2(t) = 0
+cos(t) - l = \pm i sin(t)
+l = cos(t) \mp i sin(t)
+l+ = e^{i t}
+l- = e^{-i t}
+
+Eigenvectors?
+x, y to be determined
+G (x|alpha> y|beta>) = e^{\mp i \theta} (x|alpha> + y |beta>)
+
+x G|alpha> + y G|beta> = x(cos(\theta)|\alpha> + sin(\theta)|\beta>)
+                       + y(-sin(\theta)|\alpha> + cos(\theta)|\beta>)
+ = |\alpha> (x cos(\theta) - y sin(\theta)) +
+   |\beta>  (x sin(\theta) + y cos(\theta))
+ = e^{\mp i \theta} (x |\alpha> + y |\beta>)
+
+wow, I am lost
+
+x cos(\theta) - y sin(\theta) = e^{-+ i \theta}
+ = cos(\theta) x \mp i sin(\theta) x
+\theta != 0    because M != 0,
+\theta != \pi  because \theta/2 != \pi/2  // M <= N-1, M != N
+
+|\psi_+> = x|alpha> - i x|beta>
+|\psi_+> = x|alpha> + i x|beta>
+
+let x = 1/2^.5
+
+can switch basis from eigenvectors to \alpha \beta, vice versa
+
+let t=\theta, l=\lambda, a=\alpha, b=\beta, p=\phi in
+|y> = cos(t/2) |a> + sin(t/2)|b>
+    = 1/2^.5 cos(t/2) (|p_+> + |p_->) + i/2^.5 sin(t/2) (|p_+> - |p_->)
+    = 1/2^.5 (cos(t/2) + i sin(t/2))|p_+> + 1/2^.5 (cos(t/2) - i sin(t/2)) |p_->
+    = 1/2^.5 e^(i t) |p_+> + 1/2^.5 e^(-i t) |p_->
+and we have it!
+yay
+
+Note: any state of the form
+  |p> = z_1 |p_1> + z_2 |p_->
+  will fit our purposes as long as |p> is normal
+  the actual coefficients of |y> do not matter for estimating \theta
+
+hoping phase estimation will give you an estimate of \l+ or \l- and
+you do not care which of the two
+look at the phases
+\l+ = e^(i t)  = e^(2\pi i (\t/(2\pi))
+\p+ = \t/(2\pi)
+\l- = e^(-i t) = e^(2\pi i (-\t/(2\pi))  // \t \in {0,\pi}
+\p- = (2\pi-\t)/(2\pi)
+
+run phase estimation
+w/ initial state |y> and powers of G (exponential)
+get an estimate |\hat\p+ - \p+| <= 1/2^n
+  with probability |e^(i t/2) / 2^.5|^2 (1-\epsilon)
+                   = |1/2|^2 (1-\epsilon)
+
+must be the room or something, can't pay attention
+
+\hat\p+ = m/2^t = \hat\p-
+|\hat\p+ - \t/2\pi| <= 1/2^n
+|2\pi \hat\p+ - \t| <= 2\pi/2^n
+same for \p-
+
+|sin^2(2\pi\hat\p-) - sin^2(2\pi - \t)|
+ = |sin^2(2\pi\hat\p-) - sin^2(\t)|
+|sin^2(2\pi\hat\p+) - sin^2(\t)|
+
+|sin^2(2\pi m/2^t) - sin^2(\t)|
+
+we're looking for |f(x) - f(y)| <= ?
+let's try applying the mean value theorem
+|f(b) - f(a)| <= max_{c \in [a,b]}( |f'(c)| ) |b-a|
+
+tada:
+|sin^2(2\pi m/2^t) - sin^2(\t/2)| <= 2\pi/2^n
+not sure how this works:
+  sin^2(\t/2) = M/N = S(f)
