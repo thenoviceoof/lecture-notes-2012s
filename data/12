@@ -1,0 +1,218 @@
+DDM
+Lecture #12
+2012/04/23
+================================================================================
+
+yahoo speaker
+
+sergei vassilvitskii
+
+k means ++
+
+--------------------------------------------------------------------------------
+duplicate detection
+
+why?
+  conserve resources
+  user experience (diversity++)
+
+25-40% of the web duplicated (few years old)
+
+exact dupes, easy
+almost dupe: differing headers/footers
+
+same content, different HTML format
+or, even different versions/updates
+
+using trigrams
+  word triples
+  make set of trigrams in a document
+  similarity(A,B) = |A \inter B| / |A \union B|
+    where A and B are sets
+    jaccard similarity
+    good: simple, easy to compute
+    bad: ignores repetition,
+         bad at detecting small syntax edit w/ large semantic edit
+
+example la la la
+
+--------------------------------------------------------------------------------
+algorithms
+
+easy to compute: lol jk
+
+hashing:
+  good for exact duplicates
+  doesn't work for near dupes
+
+edit distance:
+  good for detecting near dupes
+  does not scale O(n^2)
+
+note: exact estimation?
+
+shingling
+  48 bytes per page, detect near dupes without examining all billion pages
+  48 is not magical, is n
+
+--------------------------------------------------------------------------------
+shingling?
+
+computing jaccard similarity is expensive
+compress docs into sketches, only good for determining near dupes
+
+made by altavista
+
+take hash H, and the trigram set
+hash each trigram (shingle)
+
+store the minimum hash
+
+magical!
+the probability of the minimum hashes matching is equal to the jaccard
+similarity
+exactly equal
+
+do it with a few different hash functions
+similarity = % of times hashes agree
+
+----------------------------------------
+why does min-hash work?
+
+theorem:
+Prob[minhash(A) = minhash(B)] = jaccard similarity(A,B)
+
+Proof:
+only one trigram will have the minimum hash value
+agreement only when trigrams match, out of all trigrams in both
+  which is jaccard
+
+----------------------------------------
+sketch is collection of min-hashes
+
+in practice, used 84 hash functions
+  for a 672 byte summary/page
+
+problem: full pairwise comparison, still O(n^2)
+
+----------------------------------------
+super shingles
+
+only care about high simlarity items
+
+recurse:
+  treat the shingle as a document
+  group min-hashes as non-overlapping super-shingles (4-gram)
+    // versus the overlapping trigrams
+
+only compare documents that agree in at least one super-shingle
+
+in practice, store the super-shingle/document table sorted by each column
+only look at adjacent rows (no pairwise funny business)
+  // or, you could bucket instead of sorting
+
+also used as a clustering algorithm
+
+similar if overlap of 2+ super shingles
+
+could do the sorting trick on sketch
+
+
+--------------------------------------------------------------------------------
+evaluation
+
+do it on 1.6 billion
+
+can't really do ground truth, too many things
+do spot checks, can determine precision
+
+undecided category
+  found prefilled forms
+  differing minor item (text box, etc)
+  language problem (foreign languages)
+
+as you increase the numer of super shingles, precision rises 30% -> 80%
+but pairs fall off 90% -> 5%
+
+boilerplate was killing the stats: small part of page is drowned by
+page template
+
+
+--------------------------------------------------------------------------------
+beyond dupe detection
+
+this is the first pass for dupe detection
+
+also useful in recommendation systems
+  ex. twitter, who to follow
+  + adjustments for other follows, proximity
+
+easy to increment
+update only when min-hash changes
+
+(1-jaccardsimilarity) is a metric?
+
+
+
+--------------------------------------------------------------------------------
+--------------------------------------------------------------------------------
+From New York Times R&D
+Jake Porway
+Data Without Borders
+
+Techtonics
+
+// this is a very light talk
+
+ex. news.me
+
+he's selling his company pretty hard
+
+oh god they're making the metacortex
+screen mirror
+
+openpaths
+
+----------------------------------------
+project cascade
+talking about looking at tweets/engagement
+
+how to get a click?
+so we need to estimate which click maps to which (re)tweet
+
+exponential mixture model
+
+T = tweet times
+f = followers for each tweet
+X = click times
+D(x) = assignment of each click to a tweet
+
+sample a tweet to draw from
+D* ~ Dirichlet(Q)
+Q = set of priors of log(f)
+sample a value from the tweet's exponential model
+x* = p(X; ...)
+
+have to estimate \l (exponential parameters),
+Q (dirichlet parameters), D (assignments of clicks to tweets)
+
+only works well when likelihood/prior are conjugate pairs
+if they're not, then normalization is intractable
+
+doing accept/reject
+like monte carlo simulations
+from Von Neumann
+not so great, scales of encompassing function could be off
+
+Metropolis-Hastings
+Markov Chain
+Markov chain to sample from the distribution p(x)
+  using some distribution q(x,y), determine where to move to
+Note: detailed balance equation (p(x)q(x,y) = p(y)q(y,x))
+
+gibbs sampler
+
+just get the maximum posterior
+
+----------------------------------------
+plug for Data without Borders
