@@ -1,0 +1,87 @@
+PLT
+2012/04/23
+#25
+================================================================================
+
+got into class some 35 minutes late
+
+lambda calculus madness
+
+outline:
+history
+grammar
+how to eval lambda expressions
+evaluation orders
+the church-rosser theorems
+the paradoxical y combinator
+lambda calculus is turing complete
+
+--------------------------------------------------------------------------------
+CFG for lambda calculus
+
+E -> b | u | E E | \l u.E | (E)
+b for builtin functions (+,*...) and constants (int, bool...)
+u for variables
+E E for function application
+((+ x) 2)
+(+ x 2) // currying
+
+\l notation is function abstraction
+\l x. (+ x) 2
+
+function application is left associative
+E -> E E
+f g h -> (f g) h
+
+body of \l goes as far right as possible
+
+free/bound variables
+
+----------------------------------------
+alpha reduction
+change bound variable names
+\l x. x x   a-> \l y.y y
+
+----------------------------------------
+beta reduction
+substitution
+[y/e] x = y substituted for all free occurrences of x in e
+
+(\l x.e) g b-> [g/x]e
+(\l x.x) y b-> [y/x]x
+ = y
+
+(\l x. x x) (\l y.y)
+b-> [\l y.y/x] x x
+= (\l y.y)(\ly.y)
+b-> [\ly.y/y] y
+= \l y.y
+
+----------------------------------------
+evaluation order
+normal form = no reducible expressions
+
+(\l x.x x)(\l x.x x)
+\b-> [\l x.x x/x] x x
+-> (\l x.x x)(\l x.x x)
+infinite loop, has no normal form
+
+(\l x.1) ((\l x.x x) (\l x.x x))
+-> 1
+apply (\l x.x x) (\l x.x x) first?
+
+normal order evaluation
+reduce leftmost outermost reduction repeatedly
+  similar to call by name
+  lazy evaluation
+
+applicative order evaluation
+reduce leftmost innermost reduction
+  eager evaluation
+
+--------------------------------------------------------------------------------
+church rossner theorem
+
+every expression has a unique normal form
+
+etc, read the page
