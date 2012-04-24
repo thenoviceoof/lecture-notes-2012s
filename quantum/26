@@ -1,0 +1,211 @@
+Quantum Computing
+lecture #26
+2012/04/24
+================================================================================
+
+Review:
+finish up Grover
+
+Precise estimate of k?
+
+k = floor[\pi/(2\theta)]
+sin(\t/2) = \sqrt{M/N}
+M is known: set to 1 (from Grover's original paper)
+
+cost k = O(\sqrt{N})
+
+--------------------------------------------------------------------------------
+Boolean mean
+
+S(f)
+ = 1/N \sum_x f(x)
+ = M/N
+ = sin^2(\t/2)
+
+estimate sin^2(\t/2) w/ error epsilon (\e)
+quantum counting
+
+take G (Grover iteration)
+in the space ln{|\a>, |\b>}
+  where
+  |\a> = 1/(M-N)^.5 \sum_{x\not\in M_f} |x>
+  |\b> = 1/(N)^.5 \sum_{x\in M_f} |x>
+G = [[cos(\t) -sin(\t)]
+     [sin(\t) cos(\t)]]
+eigenvalues/vectors?
+\l_+ = e^(i\t)
+|\psi_+> = (|\a>-i|\b>) / 2^.5
+\l_- = e^(-i\t)
+|\psi_-> = (|\a>+i|\b>) / 2^.5
+
+|y>
+ = 1/N^.5 \sum |x>
+ = cos(\t/2) |\a> + sin(\t/2)|\b>
+ = e^(i\t/2)/2^.5 |\psi_+> + e^(-i\t/2)/2^.5 |\psi_->
+
+linear combination of |\psi_+>, |\psi_->
+therefore(?)
+G is unitary
+
+Apply phase estimation to get \phi_+ or \phi_-
+with inital state |y>, and powers of G ( G, G^2, ... G^(2^(t-1)) )
+
+something doesn't matter, because:
+\l_+ = e^(2\pi i \phi_+)
+\phi_+ = \t/(2\pi)
+\l_- = e^(2\pi i \phi_-)
+\phi_- = (2\pi - \t)/(2\pi)
+|m/2^t - \phi| <= 1/2^(n_0)  // n_0 is bits of accuracy, not number of variables
+\phi \in {\phi_+, \phi_-}
+
+|2m/2^t - 2\phi| <= 2/2^n_0
+|\pi m/2^t - \pi\phi| <= \pi/2^n_0
+\pi\phi \in {\t/2, \pi-\t/2}
+
+| sin^2(\pi m/2^t) - sin^2(\pi \phi) |
+  <= ||sin^2|| |m\pi/2^t - \pi\phi|   \\ using ||g|| = max|f(x)| notation
+  =(?) \pi/2^n_0
+sin^2(\pi\phi) \in { sin^2(\t/2) = M/N, sin^2(\pi - \t/2) = sin^2(\t/2) = M/N }
+
+\e is both error and chance of failure
+
+Phase estimation succeeds approximately
+  \phi_+ with probability |e^(i\t/2)/2^.5| 3/4
+  \phi_- with probability |e^(-i\t/2)/2^.5| 3/4
+
+blanked for a bit
+
+it will fall into either case, so we're covered in either way(?)
+
+----------------------------------------
+Theorem:
+To estimate S(f) with error \e a number of queries \Theta(1/\e) is needed
+
+Theorem:
+To find x_0 : f(x_0) = 1 the number of \Theta(N^.5) queries is
+  necessary (Nayed + Wa) + sufficient (Grover's Algorithm)
+
+have t qubits filled with |0>
+n qubits for |y>
+Apply H to the t qubits
+Sequentially apply G to |y>, controlled by each of the t qubits
+Apply F^H to the t qubits
+And then measure the t qubits
+
+PAGE 16, FIGURE 1: Circuit
+
+sin^2(m\pi/2^t) ~= M/N = S(f)
+with error O(1/2^t)
+and probability O(1) > 1/2
+
+require 2^k queries for each G^(2^k)
+total queries ~ O(2^t)
+
+There will be something similar to the the binary mean on the final
+especially the linear combination -> doesn't matter which branch we take
+
+
+--------------------------------------------------------------------------------
+Today:
+
+Phase estimation of approximation of initial state (Abroust, Loyd 1995)
+
+U -> (2^k, 2^k) unitary
+
+|U_s> ,  s = 1...2^k  // eigenvectors
+\l_s = e^(2\pi i \phi_s)  // eigenvalues
+
+Estimate, say, \phi using
+|\phi> = \sum_{s=1} d_s |U_s>
+d_s = |d_s|^2  // projection onto... s???
+
+----------------------------------------
+Theorem:
+phase estimation gives || <= 1/2^n with probability >= |d_1|^2 (1-\e)
+
+Proof:
+|0>^(\tensor t) |\psi>
+ = |0>^(\tensor t) \sum_{s=1}^{2^k} d_s |u_s>
+ = \sum_{s=1}^2^k d_s ( |0>^(\tensor t) |u_s> )
+-> phase estimation >-
+ = \sum_{s=1}^2^k d_s ( \sum_j^(2^t-1) \a(j,s) |j>|u_s> )
+
+probability to get outcome m if we measure the top register
+p_m
+ = \sum_{s=1}^{2^k} |d_s|^2 |\a(m,s)|^2
+ >= |d_1|^2 |\a(m,1)|^2
+QED
+m = (1-\e)
+
+Error is |m/2^t - \phi_1| <= 1/2^n
+with probability |d_1|^2 (n-\e)
+
+
+--------------------------------------------------------------------------------
+Quantum algorithm for linear systems
+by Harrow, Hassidim, Lloyd: 2009
+
+Solve Ax = b
+algorithm solves efficiently under certain conditions
+
+using PE,
+  amplitude amplification (boost success probability),
+  Quantum simulation
+
+H - Hamiltonian Matrix
+Want to approximate e^(i H t), t \in R, with error \e
+and do it efficiently
+
+H = \sum_k^m H_j
+e^(i H_j t) can be simulated efficiently
+(Efficiently means with cost poly(n, m, 1/\e))
+eg. m=2, e^(i(H_1+H_2)) ~= (e^(iH_1/M) e^(iH_2/M))^M
+
+Assumptions
+|b> given as implemented (or can be prepared efficiently)
+    // efficiently preparation usually means spooky magic
+Eigenvalues of A:
+  1/K(A) = \l_1 <= \l_2 <= ... <= \l_N <= 1
+  with matrix size NxN, N=2^n
+  Real/Symmetric
+  K(A) = \l_M / \l_1
+    // Condition # of A
+    // and, K(A) = poly(m)
+
+e^(i A t)
+t \in R
+can be computed with error \e and cost poly(n)
+
+// starting to lose mental coherency
+
+hmm, so is e^(i A t) always unitary, even if A isn't unitary?
+
+use e^(i A t) as in grover
+
+then do phase estimation on |b> = \sum d_s |u_s>, |u_s> eigenvectors of A
+gives the state
+  \sum_s^(2^n) d_s ( \sum_j^(2^t-1) \a(j,s) |j>|u_s> )
+  = \sum_s^(2^n) d_s |j_s> |u_s>
+
+assume 2^t \phi_s = int
+\a(j,s) = {2^t\phi_s is int: 1, other: 0}
+\phi_s = j_s/2^t
+
+Ax = b = \sum_s d_s u_s
+x = \sum_s d_s A^-1 u_s
+ = \sum_s d_s 1/\l_s u_s
+they're almost exactly the same
+except \l_s is in the denominator, and |j_s> isn't
+
+Add more bits!
+|0>^{\tensor q}
+  \sum_s^(2^n) d_s ( \sum_j^(2^t-1) \a(j,s) |j>|u_s> ) |0>^{\tensor q}
+  = \sum_s^(2^n) d_s |j_s> |u_s> |0>^{\tensor q}
+  = \sum_s^(2^n) d_s |j_s> |u_s> (C/\l_s^2 |1> + \sqrt{1-C^2/\l_s^2} |0>)
+  // C = 1/K(A)
+  // 1/K(A) <= \l_s
+
+Undo the PE to get
+|0>^(\tensor t) \sum_s d_s |u_s> ( C/\l_s|1> + (1-C^2/\l_s^2)^.5 |0> )
+probability to "something" |i> is 1/K(A)^2 = 1/poly(n)
+  so not too large
