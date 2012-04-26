@@ -1,0 +1,292 @@
+Quantum Computing
+lecture #27
+2012/04/26
+================================================================================
+
+Review
+
+--------------------------------------------------------------------------------
+Example 1
+very likely something like this will show up on the exam
+Related to Shor's and boosting the probability of success
+
+input:
+N = \prod_i^m p_i ^ \a_i
+  find all factors f(N)
+assume given prime number checker function (no cost)x
+prime(x) = {prime x: 1, else: 0}
+output:
+{p_i}
+
+Don't need to explain the innards of the algorithms we've studied
+  don't need to show the cost derivation either
+
+Use shor's algorithm (remember, no details needed)
+
+show:
+  cost + success probability
+  also, boost Shor's to get a constant probability
+
+m is number of prime factors: bound it?
+m <= lg N
+\sum \a_j <= lg N
+
+better have poly lg(N) cost
+
+
+--------------------------------------------------------------------------------
+Example 2
+
+Consider Grover's
+f: {0 ... N-1} -> {0,1} (boolean function)
+  N = 2^k
+  M_f = {x: f(x) = 1}
+  M = |M_f| >= 1
+
+Derive quantum algorithm/circuit computing:
+  |\b> = 1/\sqrt{M} \sum_{x \in M_f} |x>
+Search only gets close, can we get it exactly?
+
+example:
+// at least n qubits
+|0>     QC      |\b>
+|0>     QC      |y> // junk
+
+measure? sure! do whatever!
+but don't measure in the |x> basis
+
+think he means deterministically get |\b>
+
+Remember Grover:
+  G^k |\a> = cos(k\t + \t/2) |\a> + sin(k\t+\t/2) |\b>
+assume you know N
+
+
+--------------------------------------------------------------------------------
+Example 3
+
+now, from the first half of the course
+
+circuit:
+|0>     H       .       measure         m
+|0>     H       cnot                    |\psi>
+
+1. what is |\psi> when m = 0?
+2. when is the probability p_0 for m = 0?
+
+|0>|0>
+-> H x H
+1/2(|00> + |01> + |10> + |11>)
+-> CNOT
+1/2(|00> + |01> + |10> + |11>)
+
+circuit collapses to:
+|0>     H       measure         m
+|0>     H                       |\psi>
+
+p_0 = || (|00> + |01>)/2 || = 1/2
+p_1 = 1/2
+
+Collapsed state?
+( (|00>+|01>)/2 )/\sqrt{1/2}  // divide by the magnitude of the probability
+= |0> H|0>
+|\psi> = H|0>
+
+
+--------------------------------------------------------------------------------
+Example 4
+
+important!
+
+given matrix A
+A = \g |u><u|
+|u> is a given computational basis state
+0 < \g < 1  // known
+
+estimate \g
+
+A|u>
+ = \g |u><u|u>
+ = \g |u>
+\l_u = \g  // eigenvalue
+|u>        // eigenvector
+
+|v> \perpendicular |u>
+A|v> = \g|u><u|v> = 0
+\l_v = 0
+|v>
+
+hence, all eigenvalues other than |u> are 0
+
+phase estimation with |u>
+but it needs to be unitary
+e^{i A}
+tada! fixes it
+because A is symmetric (A = A^T)
+and taking symmetric matricies to a power means it's unitary
+
+e^(i A) = \sum_j^{2^k - 1} e^{i\l_j} |j><j|
+e^(i A)|u> = e^{i \g} |u>
+
+Now do some phase estimation
+e^{i \g} = e^{2\pi i (\g/(2\pi))}
+\phi = \g/(2\pi)
+
+use powers of e^{i A} (e^{i A}, e^{i A 2}, ... e^{i A 2^{t-1}})
+
+to get |m/2^t - \phi| < 1/2^n
+  with probability >= (1-\e)
+|2\pi m/2^t - \g| <= 2\pi / 2^n
+
+
+--------------------------------------------------------------------------------
+Example 5
+
+Boolean mean
+initial state is:
+|y> = H^{\tensor n} |0>^(\tensor n)
+ = e^(-i\t/2)/2^.5 |\psi_-> + e^(i\t/2)/2^.5 |\psi_+>
+  // where |\psi_->, |\psi_+> are eigenvectors
+
+Would the algorithm with initial state 
+|\psi> = Z_- |\psi_-> + Z_+ |\psi_+>
+|Z_-|^2 + |Z_+|^2 = 1
+work?
+
+Yes, because \phi_+ = \t/(2\pi)
+|m/2^t - \phi_+| <= 1/2^n
+|m/2^t - \phi_-| <= 1/2^n
+with probability
+p >= |z_+|^2 (1-\e)
+p >= |z_-|^2 (1-\e)
+
+|sin^2(\pi m/(2 t)) - sin^2(\pi\phi_+)| <= 1/2^n
+  // sin^2(\pi\phi_+)
+  //  = sin^2(\pi\phi_-)
+  //  = M/N
+with probability
+p = (|z_+|^2 + |z_-|^2) (1-\e)
+
+we win either way!
+
+
+--------------------------------------------------------------------------------
+example 6
+
+Given U_f|x>|Y> = |x>|y\oplus f(x)> 
+  // with \oplus = + (mod 2^m)
+
+How to simulate?
+  O_f|x> = e^(-2\pi i f(x) / 2^m) |x>
+SIMULATION???
+
+Phase kickback!
+
+|x>|0...1>   // n, m bits
+-> I \tensor F
+|x> 1/2^(m/2) \sum_{k=0} e^{2\pi i (k-1)/2^m} |k>   // mistake?
+ = 1/2^(m/2) \sum_k e^{2\pi i k/2^m} |x>|k>
+-> U_f
+1/2^(m/2) \sum_k e^{2\pi i k/2^m} |x>|k\oplus f(x)>
+ = 1/2^(m/2) \sum_l e^{2\pi i (l - f(x))/2^m} |x>|l>
+  // l = k\oplus f(x)
+ = e^{-2\pi i f(x))/2^m} \x> 1/2^(m/2) \sum_l e^{2\pi i l/2^m} |l>
+-> I \tensor F^H
+e^{-2\pi i f(x))/2^m} \x> |m>
+-> O_f
+e^{-2\pi i f(x))/2^m} \x> |m>
+
+m = 1
+O_f |x> = (-1)^f(x) |x>  // Grover
+ = e^{-2\pi i f(x)/2} |x>
+ = {f(x)=0: 1, f(x)=1: 0}
+
+And this is called phase kickback
+
+
+--------------------------------------------------------------------------------
+Example 7
+Consider Grover's algorithm
+
+Algorithm uses initial state |y> = H^(\tensor n) |0>^(\tensor n)
+
+Would it work with initial state |\a> ?
+  what if someone knew everything about the system, and gave you a
+  superposition of the "bad" states |\a>?
+
+|\a> = 1/\sqrt{N-M} \sum_{x \not\in M_f} |x>
+
+// wow, spaced out there for a bit
+
+G = (2|y><y| - I) O_f
+O_f|\a> = ... |\a>
+G|\a> = cos(\t) |\a> + sin(\t) |\b>
+
+G^k |\a> = cos(k\t) |\a> + sin(k\t) |\b>
+so it still works out
+
+\pi/2 - \t/2 <= k\t <= \pi/2 + \t/2
+la la la ALGEBRA
+(\pi/\t - 1)/2 <= k <= (\pi/\t + 1)/2
+
+
+--------------------------------------------------------------------------------
+Example 8
+concern implementation
+Important for quantum computation! yay
+
+Implementation using R_y, R_z
+
+R_x(\pi/2) = e^{i X \pi/2}
+ = cos(\pi/4) + i sin(\pi/4) X
+ = [[cos(\pi/4)    i sin(\pi/4)]
+    [i sin(\pi/4)  cos(\pi/4)  ]]
+ = [[1  i]
+    [i  1]] * 1/2^.5
+okay, let's pull it out
+ = 1/2^.5
+   [[1 1]
+    [i -i]]
+   [[1 0]
+    [0 i]]
+ = 1/2^.5
+   [[1 0]
+    [0 i]]
+   [[1 1]
+    [1 -1]]
+   [[1 0]
+    [0 i]]
+ = 1/2^.5 (S H S)
+BUT WE KEEP MOVING (S is R_z, but H?)
+ = e^{i\pi/4}
+   [[e^{-i\pi/4} 0         ]
+    [0           e^{i\pi/4}]]
+   1/2^.5
+   [[1 -1]
+    [1  1]]
+   [[1  0]
+    [0 -1]]
+   e^{i\pi/4}
+   [[e^{-i\pi/4} 0         ]
+    [0           e^{i\pi/4}]]
+ = e^{i\pi/2} R_z(\pi/2)
+   1/2^.5
+   [[1 -1]
+    [1  1]]
+   e^{i\pi/2}
+   R_z(\pi)
+   R_z(\pi/2)
+ = R_z(\pi/2)
+   R_y(\pi/2)
+   R_z(\pi)
+   R_z(\pi/2)
+ = R_z(\pi/2)
+   R_y(\pi/2)
+   R_z(3\pi/2)
+
+know the 2 moves: can derive from those
+  pull out the first row
+  pull out the other thing
+
+he'll be holding office hours each day until the exam
+YESSSSSSSSSSSSSS
