@@ -1,0 +1,114 @@
+DDM
+Lecture #13
+2012/04/30
+================================================================================
+
+mark hansen
+<http://www.stat.ucla.edu/~cocteau/>
+UCLA
+art/stats
+
+Statistical Modeling: The Two Cultures
+leo breiman
+ - prediction oriented
+ - look inside the black box
+we're going to look into the black box
+
+Note: oh no R
+
+linear regression
+Francis Galton
+ - an obsessive data collector
+ - introduced finger prints
+ - how does talent run in families?
+   - regression to mediocrity w/ bach
+ - talking about heights
+   - child/parent
+   - elliptical total
+   - normal marginals ALL OVER THE PLACE
+   - oh, hey, q-q plots. haven't heard that in public before
+   - oh, that's a nice conditioning argument:
+     - double normal machine, with slots on the first
+   - regression to the mean
+
+country vulnerability indices
+ - ha, asking for data
+   - make sure you don't hand out the wrong data
+   - keep your data indexed, don't have those "holy shit" moments when
+     a pro statistician comes by
+ - human development index
+ - ha, fishing expedition for 
+ - look at the coefficients (sign, magnitude), make a story from it
+ - talking about leverage - from outliers
+ - ah, margin is bimodal
+ - ahhh, thank you cleveland
+
+lol: there are no women in the class? well, you were born the way you were.
+UCLA stats classes have 50/50 splits?
+
+check out http://www.ggobi.org/
+ - vs R:
+   - bayesian stats!
+   - interactive graphics!
+
+grand tour:
+ - series of 2d projections
+ - similar to the 2d series by Cleveland
+R: tourr
+
+principle component analysis
+ - la la la
+
+if you have two variables that point to the same info (highly
+correlated) then trying to do a regression on that and look into the
+box might be messy
+
+fuzzing out the data makes better t-values?
+instability in the predictor
+  competing for oxygen in the model
+
+peering in the modeling box?
+ - have some diagnostic tools
+   - variance inflation factor
+     VIF = 1/(1-R^2)  // R^2 from predicting var with other vars
+
+break
+
+Ridge regression
+rather than usual least squares, add in an identity
+ - mostly came out of the collinearity problem
+and also put constraints on coefficient size
+it's a graphical diagnonstic tool
+ - when they change sign, something wonky is going on
+ - should have a closer look
+ - ex. hdi flips sign in the vulnerability
+but what's the range of lambda?
+ - use degrees of freedom
+   - talking about degrees of freedom in chi^2
+   - bounce, sigma hat
+just fyi, I'm super tired. lots of this is just sliding off my mind
+
+tradeoff between bias and variance
+using singular value decomposition somehow
+
+principle components come from data
+
+variable selection - read that
+
+from bayesian view:
+b^2 - normal
+|b| - laplacian
+
+lasso, talking about the
+b^2 + \l|b|
+style of thing
+
+stagewise modeling
+
+least angle regression
+ - ties together lasso and stagewise modeling
+
+it'll go up on the site
+
+Note:
+https://www.google.com/search?sourceid=chrome&client=ubuntu&channel=cs&ie=UTF-8&q=technometrics
